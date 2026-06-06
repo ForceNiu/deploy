@@ -221,6 +221,20 @@ function buildBlockWeatherBadge(wData) {
     return badge;
 }
 
+function getTransportEmoji(transport) {
+    if (transport.includes('高铁') || transport.includes('火车')) return '🚄';
+    if (transport.includes('打车') || transport.includes('出租')) return '🚗';
+    if (transport.includes('公交') || transport.includes('观光车')) return '🚌';
+    if (transport.includes('步行')) return '🚶';
+    if (transport.includes('索道')) return '🚡';
+    return '🚗';
+}
+
+function getTransportSummary(transport) {
+    const match = transport.match(/约(\d+(?:小时|分钟))/);
+    return match ? match[1] : '查看详情';
+}
+
 function getSummaryText(desc, maxLen) {
     maxLen = maxLen || 35;
     const plain = desc.replace(/<[^>]+>/g, '');
@@ -316,13 +330,15 @@ function buildDailyCards() {
 
             // 组装时间块
             const weatherBadge = buildBlockWeatherBadge(wData);
+            const transportBadge = block.transport ?
+                `<div class="transport-badge">${getTransportEmoji(block.transport)} ${getTransportSummary(block.transport)}</div>` : '';
             if (block.type === 'meal') {
                 blocksHtml += `<div class="time-block meal-block ${semanticClass}"><div class="time-title">${block.time}${weatherBadge}</div><div class="time-desc">${detailHtml}</div></div>`;
             } else {
                 const summary = getSummaryText(block.desc);
                 blocksHtml += `<div class="time-block ${semanticClass}" id="block-${idx}-${blockIdx}">` +
-                    `<div class="time-title">${block.time}${weatherBadge}</div>` +
-                    `<div class="time-summary" onclick="toggleBlock(${idx},${blockIdx})"><i class="fas fa-chevron-right expand-icon"></i><span>${summary}</span></div>` +
+                    `<div class="time-title">${block.time}${weatherBadge}${transportBadge}</div>` +
+                    `<div class="time-summary" onclick="toggleBlock(${idx},${blockIdx})"><i class="fas fa-chevron-right expand-icon"></i><span>${summary}</span><span class="expand-hint">▸ 展开</span></div>` +
                     `<div class="time-detail">${detailHtml}</div>` +
                     `</div>`;
             }
@@ -420,17 +436,16 @@ function buildDayFoodSection(city) {
     if (cityFoods.length === 0) return '';
 
     let cardsHtml = cityFoods.map(food => {
-        const foodIdx = foodData.indexOf(food);
-        const navHtml = food.mapUrl ? `<a href="${food.mapUrl}" target="_blank" rel="noopener" class="mini-food-nav"><i class="fas fa-location-arrow"></i> 导航</a>` : '';
-        return `<div class="day-food-mini-card">` +
-            `<div class="mini-food-name">${food.name}</div>` +
-            `<div class="mini-food-location"><i class="fas fa-map-marker-alt" style="margin-right:0.2rem;"></i>${food.location}</div>` +
-            `<div class="mini-food-desc">${food.desc}</div>` +
+        const descShort = food.desc.length > 15 ? food.desc.slice(0, 15) + '…' : food.desc;
+        const navHtml = food.mapUrl ? `<a href="${food.mapUrl}" target="_blank" rel="noopener" class="food-tag-nav"><i class="fas fa-location-arrow"></i></a>` : '';
+        return `<div class="food-tag">` +
+            `<span class="food-tag-name">${food.name}</span>` +
+            `<span class="food-tag-desc">${descShort}</span>` +
             navHtml +
             `</div>`;
     }).join('');
 
-    return `<div class="day-food-section"><div class="section-label"><i class="fas fa-utensils"></i> 今日美食推荐</div><div class="day-food-mini-grid">${cardsHtml}</div></div>`;
+    return `<div class="day-food-section"><div class="section-label"><i class="fas fa-utensils"></i> 今日推荐</div><div class="food-tags-inline">${cardsHtml}</div></div>`;
 }
 
 // ========== 行动按钮 ==========

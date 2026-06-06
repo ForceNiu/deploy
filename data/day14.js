@@ -1,5 +1,6 @@
 window._day14 = {
     date: "6/14 周日",
+    dateKey: "2026-06-14",
     dayTitle: "竹筏·品茶·印象大红袍",
     weekend: true,
     intensity: 1,

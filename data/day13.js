@@ -1,5 +1,6 @@
 window._day13 = {
     date: "6/13 周六",
+    dateKey: "2026-06-13",
     dayTitle: "天游峰·岩骨花香",
     weekend: true,
     intensity: 3,

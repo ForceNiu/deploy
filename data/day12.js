@@ -1,5 +1,6 @@
 window._day12 = {
-    date: "6/12 周四",
+    date: "6/12 周五",
+    dateKey: "2026-06-12",
     dayTitle: "启程入山",
     intensity: 1,
     blocks: [
@@ -14,7 +15,8 @@ window._day12 = {
                 { category: "餐饮建议", icon: "fas fa-utensils", items: ["景区内餐厅溢价高，吃饭在三姑度假区老街解决", "紫溪粉认准「老陈紫溪粉」", "岚谷熏鹅认准「沈大妈总店」", "光饼1元/个，登山补给神器"] }
             ],
             transport: "武夷山机场→三姑度假区：打车约15-20分钟/25-35元，或7路公交3元/30分钟。",
-            rainPlan: null
+            rainPlan: null,
+            spots: ["武夷山"]
         }
     ]
 };

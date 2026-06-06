@@ -850,6 +850,59 @@ body::after {
 .semantic-ticket .time-title { color: #6a1b9a; }
 .semantic-ticket { border-left-color: #9c27b0; }
 
+/* ========== 转场方式徽章 ========== */
+.transport-badge {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.1rem 0.4rem;
+    background: #f0f7f0;
+    border-radius: 0.6rem;
+    font-size: 0.7rem;
+    color: #5a8a52;
+}
+
+/* ========== 展开按钮提示 ========== */
+.expand-hint {
+    margin-left: auto;
+    font-size: 0.7rem;
+    color: #8a9a8a;
+}
+.time-block.expanded .expand-hint {
+    color: #5a8a52;
+    font-size: 0;
+}
+.time-block.expanded .expand-hint::after {
+    content: '收起';
+    font-size: 0.7rem;
+}
+
+/* ========== 美食推荐轻量标签 ========== */
+.food-tags-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+.food-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.5rem;
+    background: #fefcf8;
+    border: 1px solid #e8efe2;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+}
+.food-tag-name {
+    font-weight: 600;
+    color: #6d4c41;
+}
+.food-tag-desc {
+    color: #8a9a8a;
+}
+.food-tag-nav {
+    color: #5a8a52;
+}
+
 /* ========== A4 时间块天气徽章 ========== */
 .block-weather-badge {
     display: inline-flex;
@@ -933,6 +986,7 @@ body::after {
     align-items: center;
     gap: 0.4rem;
     transition: color 0.2s;
+    min-height: 2.5rem;
 }
 .time-block .time-summary:hover { color: #2d5a27; }
 .time-block .time-summary .expand-icon {
