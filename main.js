@@ -341,8 +341,9 @@ function buildDailyCards() {
                 blocksHtml += `<div class="time-block meal-block ${semanticClass}"><div class="time-title">${block.time}${weatherBadge}</div><div class="time-desc">${detailHtml}</div></div>`;
             } else {
                 const summary = getSummaryText(block.desc);
+                const durationHtml = block.duration ? `<div class="time-duration"><i class="fas fa-clock"></i> ${block.duration}</div>` : '';
                 blocksHtml += `<div class="time-block ${semanticClass}" id="block-${idx}-${blockIdx}">` +
-                    `<div class="time-title-row"><div class="time-title">${block.time}${weatherBadge}${transportBadge}</div></div>` +
+                    `<div class="time-title-row"><div class="time-title">${block.time}${weatherBadge}${transportBadge}</div>${durationHtml}</div>` +
                     `<div class="time-summary" onclick="toggleBlock(${idx},${blockIdx})"><i class="fas fa-chevron-right expand-icon"></i><span>${summary}</span><span class="expand-hint"><span class="expand-hint-text">展开</span><span class="collapse-hint-text">收起</span></span></div>` +
                     `<div class="time-detail">${detailHtml}</div>` +
                     `</div>`;
