@@ -822,6 +822,24 @@ body::after {
     font-weight: 700;
     color: #1a2e1a;
 }
+.price-subtotal {
+    background: #f5f2ec;
+    font-weight: 600;
+    color: #3a4a3a;
+}
+.price-channel {
+    font-size: 0.72rem;
+    color: #5a8a52;
+    background: #f0f7f0;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.4rem;
+}
+.price-note {
+    display: block;
+    font-size: 0.65rem;
+    color: #8a9a8a;
+    margin-top: 0.1rem;
+}
 
 /* ========== 天气预警 ========== */
 .weather-alert {
@@ -1100,6 +1118,15 @@ body::after {
     border-radius: 0.8rem;
     white-space: nowrap;
 }
+.day-overview .overview-key-node {
+    font-size: 0.68rem;
+    color: #c75b39;
+    padding: 0.1rem 0.4rem;
+    background: #fef8f0;
+    border-radius: 0.8rem;
+    white-space: nowrap;
+    font-weight: 500;
+}
 
 /* ========== L1 摘要层 & L2 详情层 ========== */
 .time-block .time-summary {
@@ -1250,6 +1277,7 @@ body::after {
     justify-content: space-between;
     box-shadow: 0 -2px 10px rgba(26,46,26,0.06);
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    transition: transform 0.3s ease;
 }
 .bottom-date-nav .nav-arrow {
     width: 2rem;

@@ -7,40 +7,64 @@
 ## 2026-06-06（第五轮）— 功能性优化 + 交互体验
 
 ### 5.1 天气预警位置修正
-- **commit**: pending
+- **commit**: `2c64d83`
 - **文件**: `index.html`
 - **改动**: `#weatherAlerts` 从"门票价格"与"伴手礼"之间移入天气模块内容区
 - **效果**: 天气预警与天气数据在同一模块，展开天气即可看到预警
 
 ### 5.2 快捷导航联动展开
-- **commit**: pending
+- **commit**: `2c64d83`
 - **文件**: `main.js`
 - **改动**: `scrollToSection()` 点击时自动移除目标模块的 `collapsed` 类
 - **效果**: 点击快捷导航按钮时自动展开收起的模块，无需二次点击
 
 ### 5.3 底部浮窗遮挡修复
-- **commit**: pending
+- **commit**: `2c64d83`
 - **文件**: `style.css`
 - **改动**: footer `padding-bottom` 从 3.5rem 增至 4.5rem
 - **效果**: footer 内容不被底部日期浮窗遮挡
 
 ### 5.4 Checklist 持久化
-- **commit**: pending
+- **commit**: `2c64d83`
 - **文件**: `main.js`、`style.css`
 - **改动**: 用 `localStorage` 保存勾选状态，key 为 `travel_checklist_state`；每日提醒和完整清单均支持
 - **效果**: 刷新页面后勾选状态不丢失
 
 ### 5.5 收起全部按钮
-- **commit**: pending
+- **commit**: `2c64d83`
 - **文件**: `main.js`、`style.css`
 - **改动**: 每日卡片 header 左侧添加收起全部按钮（hover 显示），点击收起该天所有展开的时间块
 - **效果**: 快速收起一天内所有展开的时间块
 
 ### 5.6 每日概览统计
-- **commit**: pending
+- **commit**: `2c64d83`
 - **文件**: `main.js`、`style.css`
 - **改动**: L0 概览层新增"📍 N个景点"统计标签
 - **效果**: 快速了解当天活动数量
+
+### 5.7 概览层天气动态更新
+- **commit**: pending
+- **文件**: `main.js`
+- **改动**: 概览层天气改为占位+动态填充，天气 API 加载完成后 `updateOverviewWeather()` 更新所有每日概览
+- **效果**: 天气数据始终是实时的，不再依赖渲染时的快照
+
+### 5.8 关键时间节点展示
+- **commit**: pending
+- **文件**: `main.js`、`style.css`
+- **改动**: 概览层提取日出/竹筏/日落等关键时间节点，橙色标签展示
+- **效果**: 快速了解当天核心行程节点
+
+### 5.9 门票价格关联购票渠道
+- **commit**: pending
+- **文件**: `main.js`、`style.css`
+- **改动**: 价格汇总表"备注"列改为"购票渠道"，显示小程序/现场购票；新增分类合计（景区/景点）
+- **效果**: 一目了然在哪买票，费用分类清晰
+
+### 5.10 底部浮窗智能隐藏
+- **commit**: pending
+- **文件**: `main.js`、`style.css`
+- **改动**: 滚动到 footer 区域时底部浮窗 `translateY(100%)` 滑出隐藏，带 0.3s 过渡动画
+- **效果**: footer 内容不再被遮挡
 
 ---
 

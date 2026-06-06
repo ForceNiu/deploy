@@ -267,22 +267,24 @@ function buildDailyCards() {
 
         // === L0 概览层 ===
         const firstTime = getFirstActivityTime(day.blocks);
-        const wData = (info.city !== 'move' && weatherData[info.city]) ? weatherData[info.city][dateKey] : null;
         const blockCount = day.blocks.filter(b => b.type !== 'meal').length;
-        const durationBlocks = day.blocks.filter(b => b.duration);
+        // 提取关键时间节点
+        const keyNodes = [];
+        day.blocks.forEach(block => {
+            if (block.sunriseFor) keyNodes.push({ icon: '🌅', label: '日出', time: block.time });
+            if (block.desc && block.desc.includes('竹筏')) keyNodes.push({ icon: '🎋', label: '竹筏', time: block.time });
+            if (block.note && block.note.includes('日落')) keyNodes.push({ icon: '🌇', label: '日落', time: block.time });
+        });
         let overviewHtml = '<div class="day-overview">';
         if (firstTime) {
             overviewHtml += `<span class="overview-time">⏰ ${firstTime} 出发</span>`;
         }
-        if (wData) {
-            const emoji = wmoToEmoji(wData.code);
-            const text = wmoToText(wData.code);
-            const temp = Math.round(wData.tmin) + '~' + Math.round(wData.tmax) + '°';
-            overviewHtml += `<span class="overview-weather"><span class="weather-emoji">${emoji}</span><span>${text}</span><span class="temp-range">${temp}</span></span>`;
-            if (wData.precip !== null && wData.precip >= 30) {
-                overviewHtml += `<span class="overview-rain-badge">💧 降雨${wData.precip}%</span>`;
-            }
-        }
+        // 天气占位（动态填充）
+        overviewHtml += `<span class="overview-weather" id="overview-weather-${idx}"></span>`;
+        // 关键节点
+        keyNodes.slice(0, 2).forEach(n => {
+            overviewHtml += `<span class="overview-key-node">${n.icon} ${n.time}</span>`;
+        });
         if (blockCount > 0) {
             overviewHtml += `<span class="overview-stats">📍 ${blockCount}个景点</span>`;
         }
@@ -633,20 +635,27 @@ function buildTicketTips() {
 // ========== 门票价格汇总 ==========
 function buildPriceSummary() {
     const prices = [
-        { item: "九曲溪竹筏", price: 130, note: "小程序提前3-7天" },
-        { item: "武夷山景区观光车", price: 95, note: "2026年主景区免大门票，三日票95元" },
-        { item: "庐山大门票", price: 160, note: "一机游庐山小程序" },
-        { item: "庐山索道（往返）", price: 120, note: "单程65元" },
-        { item: "庐山观光车", price: 70, note: "7天有效" },
-        { item: "三叠泉小火车", price: 80, note: "现场购买" },
-        { item: "浔阳楼", price: 30, note: "" },
-        { item: "锁江楼", price: 20, note: "" },
-        { item: "烟水亭", price: 20, note: "或免费" },
+        { item: "九曲溪竹筏", price: 130, note: "小程序提前3-7天", channel: "武夷山旅游小程序", type: "景区" },
+        { item: "武夷山景区观光车", price: 95, note: "2026年主景区免大门票，三日票95元", channel: "武夷山旅游小程序", type: "景区" },
+        { item: "庐山大门票", price: 160, note: "", channel: "一机游庐山小程序", type: "景区" },
+        { item: "庐山索道（往返）", price: 120, note: "单程65元", channel: "一机游庐山小程序", type: "景区" },
+        { item: "庐山观光车", price: 70, note: "7天有效", channel: "一机游庐山小程序", type: "景区" },
+        { item: "三叠泉小火车", price: 80, note: "", channel: "现场购买", type: "景区" },
+        { item: "浔阳楼", price: 30, note: "", channel: "现场购票", type: "景点" },
+        { item: "锁江楼", price: 20, note: "", channel: "现场购票", type: "景点" },
+        { item: "烟水亭", price: 20, note: "或免费", channel: "现场购票", type: "景点" },
     ];
     const total = prices.reduce((s, p) => s + p.price, 0);
-    let html = '<table class="price-table"><thead><tr><th>项目</th><th>价格</th><th>备注</th></tr></thead><tbody>';
-    prices.forEach(p => { html += `<tr><td>${p.item}</td><td><span class="price-tag">¥${p.price}</span></td><td>${p.note}</td></tr>`; });
-    html += `<tr class="price-total"><td>合计（门票+交通）</td><td><span class="price-tag">¥${total}</span></td><td>不含餐饮住宿</td></tr></tbody></table>`;
+    const sceneryTotal = prices.filter(p => p.type === '景区').reduce((s, p) => s + p.price, 0);
+    const spotTotal = prices.filter(p => p.type === '景点').reduce((s, p) => s + p.price, 0);
+    let html = '<table class="price-table"><thead><tr><th>项目</th><th>价格</th><th>购票渠道</th></tr></thead><tbody>';
+    prices.forEach(p => {
+        const noteHtml = p.note ? `<span class="price-note">${p.note}</span>` : '';
+        html += `<tr><td>${p.item}${noteHtml}</td><td><span class="price-tag">¥${p.price}</span></td><td><span class="price-channel">${p.channel}</span></td></tr>`;
+    });
+    html += `<tr class="price-subtotal"><td>景区门票+交通</td><td><span class="price-tag">¥${sceneryTotal}</span></td><td></td></tr>`;
+    html += `<tr class="price-subtotal"><td>景点门票</td><td><span class="price-tag">¥${spotTotal}</span></td><td></td></tr>`;
+    html += `<tr class="price-total"><td>合计</td><td><span class="price-tag">¥${total}</span></td><td>不含餐饮住宿</td></tr></tbody></table>`;
     document.getElementById('priceSummary').innerHTML = html;
 }
 
@@ -669,6 +678,27 @@ function checkWeatherAlerts() {
     const unique = [...new Set(alerts.map(a => a.text))].slice(0, 5);
     const alertType = alerts[0].type;
     container.innerHTML = `<div class="weather-alert ${alertType}"><i class="fas ${alertType === 'hot' ? 'fa-exclamation-triangle' : 'fa-cloud-rain'}"></i><span><strong>天气提醒：</strong>${unique.join('；')}</span></div>`;
+}
+
+// ========== 概览层天气动态更新 ==========
+function updateOverviewWeather() {
+    dailyData.forEach((day, idx) => {
+        const info = getCityForDay(idx);
+        if (info.city === 'move') return;
+        const dateKey = getDayDateKey(idx);
+        const wData = weatherData[info.city] && weatherData[info.city][dateKey];
+        const container = document.getElementById(`overview-weather-${idx}`);
+        if (!container || !wData) return;
+
+        const emoji = wmoToEmoji(wData.code);
+        const text = wmoToText(wData.code);
+        const temp = Math.round(wData.tmin) + '~' + Math.round(wData.tmax) + '°';
+        let html = `<span class="weather-emoji">${emoji}</span><span>${text}</span><span class="temp-range">${temp}</span>`;
+        if (wData.precip !== null && wData.precip >= 30) {
+            html += ` <span class="overview-rain-badge">💧 ${wData.precip}%</span>`;
+        }
+        container.innerHTML = html;
+    });
 }
 
 // ========== 天气动态调整（日出/雨天） ==========
@@ -869,6 +899,7 @@ function setupBottomNav() {
     const prevBtn = document.getElementById('navPrev');
     const nextBtn = document.getElementById('navNext');
     const todayBtn = document.getElementById('navTodayBtn');
+    const bottomNav = document.getElementById('bottomDateNav');
 
     prevBtn.addEventListener('click', () => {
         if (currentVisibleDay > 0) {
@@ -886,6 +917,20 @@ function setupBottomNav() {
         const todayCard = document.querySelector('.day-card.today');
         if (todayCard) todayCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+
+    // 滚动到 footer 区域时隐藏底部浮窗
+    const footerEl = document.querySelector('footer');
+    if (footerEl && bottomNav) {
+        window.addEventListener('scroll', () => {
+            const footerRect = footerEl.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            if (footerRect.top < windowHeight + 50) {
+                bottomNav.style.transform = 'translateY(100%)';
+            } else {
+                bottomNav.style.transform = 'translateY(0)';
+            }
+        });
+    }
 
     updateBottomNav(0);
 }
@@ -965,7 +1010,7 @@ window.addEventListener('DOMContentLoaded', () => {
     renderPackingChecklist();
     updateTabCounts();
     highlightToday();
-    renderWeather().then(() => { checkWeatherAlerts(); applyWeatherDynamic(); });
+    renderWeather().then(() => { checkWeatherAlerts(); applyWeatherDynamic(); updateOverviewWeather(); });
     setupBackToTop();
     setupScrollProgress();
     setupBottomNav();
