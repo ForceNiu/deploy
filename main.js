@@ -232,7 +232,7 @@ function getTransportEmoji(transport) {
 
 function getTransportSummary(transport) {
     const match = transport.match(/约(\d+(?:小时|分钟))/);
-    return match ? match[1] : '查看详情';
+    return match ? match[1] : null;
 }
 
 function getSummaryText(desc) {
@@ -335,8 +335,9 @@ function buildDailyCards() {
 
             // 组装时间块
             const weatherBadge = buildBlockWeatherBadge(wData);
-            const transportBadge = block.transport ?
-                `<div class="transport-badge">${getTransportEmoji(block.transport)} ${getTransportSummary(block.transport)}</div>` : '';
+            const transportSummary = block.transport ? getTransportSummary(block.transport) : null;
+            const transportBadge = transportSummary ?
+                `<div class="transport-badge">${getTransportEmoji(block.transport)} ${transportSummary}</div>` : '';
             if (block.type === 'meal') {
                 blocksHtml += `<div class="time-block meal-block ${semanticClass}"><div class="time-title">${block.time}${weatherBadge}</div><div class="time-desc">${detailHtml}</div></div>`;
             } else {
