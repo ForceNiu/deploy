@@ -235,10 +235,15 @@ function getTransportSummary(transport) {
     return match ? match[1] : '查看详情';
 }
 
-function getSummaryText(desc, maxLen) {
-    maxLen = maxLen || 35;
-    const plain = desc.replace(/<[^>]+>/g, '');
-    return plain.length > maxLen ? plain.slice(0, maxLen) + '…' : plain;
+function getSummaryText(desc) {
+    const plain = desc.replace(/<[^>]+>/g, '').replace(/^[⚠️✈️🍜🍽️🎭🚗]+\s*/, '').trim();
+    if (plain.length <= 40) return plain;
+    // 取第一个完整句（以。！？结尾），上限60字
+    const m = plain.match(/^(.{20,60}[。！？])/);
+    if (m) return m[1];
+    const end = plain.indexOf('。');
+    if (end > 0 && end <= 70) return plain.slice(0, end + 1);
+    return plain.slice(0, 40) + '……';
 }
 
 function isRainyDay(dayIdx) {
@@ -436,7 +441,7 @@ function buildDayFoodSection(city) {
     if (cityFoods.length === 0) return '';
 
     let cardsHtml = cityFoods.map(food => {
-        const descShort = food.desc.length > 25 ? food.desc.slice(0, 25) + '…' : food.desc;
+        const descShort = getSummaryText(food.desc);
         const tagsHtml = food.tags ? food.tags.slice(0, 2).map(t => `<span class="mini-food-tag">${t}</span>`).join('') : '';
         const navHtml = food.mapUrl ? `<a href="${food.mapUrl}" target="_blank" rel="noopener" class="mini-food-nav"><i class="fas fa-location-arrow"></i> 导航</a>` : '';
         return `<div class="day-food-mini-card">` +

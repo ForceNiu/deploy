@@ -1076,6 +1076,19 @@ body::after {
     flex-shrink: 0;
 }
 .time-block.expanded .time-summary .expand-icon { transform: rotate(90deg); }
+.time-block.expanded .time-summary {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    min-height: auto;
+    padding: 0.3rem 0.7rem;
+    justify-content: flex-end;
+    background: linear-gradient(transparent, rgba(254,252,248,0.95) 30%);
+    border-radius: 0 0 0.6rem 0;
+    z-index: 1;
+}
+.time-block.expanded .time-summary > span:not(.expand-hint) { display: none; }
 .time-block .time-detail {
     max-height: 0;
     overflow: hidden;
