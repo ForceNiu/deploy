@@ -291,6 +291,7 @@ function buildDailyCards() {
         overviewHtml += '</div>';
 
         // === 时间块（L1 摘要 + L2 详情）===
+        const wData = (info.city !== 'move' && weatherData[info.city]) ? weatherData[info.city][dateKey] : null;
         let blocksHtml = '';
         day.blocks.forEach((block, blockIdx) => {
             const semanticClass = getBlockSemanticClass(block);
