@@ -3,6 +3,7 @@ window._day18 = {
     dayTitle: "三叠泉·下山转场",
     intensity: 3,
     dateKey: "2026-06-18",
+    accommodation: "九江八里湖新区维也纳酒店（濂溪区长虹西大道420号，靠近庐山机场，明天12:35航班从这里出发最方便）",
     blocks: [
         {
             time: "🌅 凌晨 5:50",
