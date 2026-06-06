@@ -337,8 +337,8 @@ function buildDailyCards() {
             } else {
                 const summary = getSummaryText(block.desc);
                 blocksHtml += `<div class="time-block ${semanticClass}" id="block-${idx}-${blockIdx}">` +
-                    `<div class="time-title">${block.time}${weatherBadge}${transportBadge}</div>` +
-                    `<div class="time-summary" onclick="toggleBlock(${idx},${blockIdx})"><i class="fas fa-chevron-right expand-icon"></i><span>${summary}</span><span class="expand-hint">▸ 展开</span></div>` +
+                    `<div class="time-title-row"><div class="time-title">${block.time}${weatherBadge}${transportBadge}</div></div>` +
+                    `<div class="time-summary" onclick="toggleBlock(${idx},${blockIdx})"><i class="fas fa-chevron-right expand-icon"></i><span>${summary}</span><span class="expand-hint"><span class="expand-hint-text">展开</span><span class="collapse-hint-text">收起</span></span></div>` +
                     `<div class="time-detail">${detailHtml}</div>` +
                     `</div>`;
             }
@@ -432,20 +432,21 @@ function buildDayFoodSection(city) {
     const region = regionMap[city];
     if (!region) return '';
 
-    const cityFoods = foodData.filter(f => f.region === region).slice(0, 3);
+    const cityFoods = foodData.filter(f => f.region === region).slice(0, 4);
     if (cityFoods.length === 0) return '';
 
     let cardsHtml = cityFoods.map(food => {
-        const descShort = food.desc.length > 15 ? food.desc.slice(0, 15) + '…' : food.desc;
-        const navHtml = food.mapUrl ? `<a href="${food.mapUrl}" target="_blank" rel="noopener" class="food-tag-nav"><i class="fas fa-location-arrow"></i></a>` : '';
-        return `<div class="food-tag">` +
-            `<span class="food-tag-name">${food.name}</span>` +
-            `<span class="food-tag-desc">${descShort}</span>` +
-            navHtml +
+        const descShort = food.desc.length > 25 ? food.desc.slice(0, 25) + '…' : food.desc;
+        const tagsHtml = food.tags ? food.tags.slice(0, 2).map(t => `<span class="mini-food-tag">${t}</span>`).join('') : '';
+        const navHtml = food.mapUrl ? `<a href="${food.mapUrl}" target="_blank" rel="noopener" class="mini-food-nav"><i class="fas fa-location-arrow"></i> 导航</a>` : '';
+        return `<div class="day-food-mini-card">` +
+            `<div class="mini-food-name">${food.name}</div>` +
+            `<div class="mini-food-desc">${descShort}</div>` +
+            `<div class="mini-food-bottom">${tagsHtml}${navHtml}</div>` +
             `</div>`;
     }).join('');
 
-    return `<div class="day-food-section"><div class="section-label"><i class="fas fa-utensils"></i> 今日推荐</div><div class="food-tags-inline">${cardsHtml}</div></div>`;
+    return `<div class="day-food-section"><div class="section-label"><i class="fas fa-utensils"></i> 今日推荐</div><div class="day-food-mini-grid">${cardsHtml}</div></div>`;
 }
 
 // ========== 行动按钮 ==========

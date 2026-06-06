@@ -92,12 +92,12 @@ body::after {
 
 /* ========== Hero ========== */
 .hero {
-    background: linear-gradient(135deg, #e8efe2 0%, #d4ddd0 50%, #c8d4be 100%);
+    background: linear-gradient(135deg, #e8efe2 0%, #d4ddd0 40%, #c8d4be 100%);
     border-radius: 1.5rem;
     padding: 2rem 2.2rem;
     margin-bottom: 1.5rem;
     border: 1px solid #b8c8ae;
-    box-shadow: 0 4px 20px rgba(45,90,39,0.08);
+    box-shadow: 0 4px 20px rgba(45,90,39,0.08), 0 1px 4px rgba(45,90,39,0.04);
     position: relative;
     overflow: hidden;
 }
@@ -106,7 +106,15 @@ body::after {
     position: absolute;
     top: -50%; right: -20%;
     width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(199,91,57,0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(199,91,57,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.hero::after {
+    content: "";
+    position: absolute;
+    bottom: -30%; left: -10%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(45,90,39,0.06) 0%, transparent 70%);
     border-radius: 50%;
 }
 .hero h1 {
@@ -115,8 +123,9 @@ body::after {
     color: #2d5a27;
     font-family: 'ZCOOL KuaiLe', cursive;
     letter-spacing: 2px;
+    position: relative;
 }
-.hero p { font-size: 1rem; color: #5a6b5a; margin-top: 0.4rem; font-weight: 400; letter-spacing: 1px; }
+.hero p { font-size: 1rem; color: #5a6b5a; margin-top: 0.4rem; font-weight: 400; letter-spacing: 1px; position: relative; }
 
 /* ========== 标题 ========== */
 .section-title {
@@ -368,15 +377,15 @@ body::after {
     background: #fefcf8;
     border-radius: 1rem;
     margin-bottom: 1.2rem;
-    border: 1px solid #d4ddd0;
+    border: 1px solid #dce5d8;
     overflow: hidden;
     transition: all 0.25s ease;
-    box-shadow: 0 2px 8px rgba(26,46,26,0.05);
+    box-shadow: 0 2px 12px rgba(26,46,26,0.06), 0 1px 3px rgba(26,46,26,0.04);
 }
-.day-card:hover { border-color: #b8c8ae; box-shadow: 0 4px 14px rgba(26,46,26,0.08); }
+.day-card:hover { border-color: #b8c8ae; box-shadow: 0 6px 20px rgba(26,46,26,0.1), 0 2px 6px rgba(26,46,26,0.05); }
 .day-card.today {
     border: 2px solid #c75b39;
-    box-shadow: 0 0 0 3px rgba(199,91,57,0.15), 0 4px 14px rgba(199,91,57,0.1);
+    box-shadow: 0 0 0 3px rgba(199,91,57,0.12), 0 6px 20px rgba(199,91,57,0.1);
 }
 .day-card.today .day-header {
     background: linear-gradient(135deg, #fef8f0, #fde8d8);
@@ -384,19 +393,20 @@ body::after {
 }
 .day-card.today .day-header::after {
     content: "📍 今天";
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #c75b39;
     font-weight: 600;
     background: #fff;
-    padding: 0.2rem 0.6rem;
+    padding: 0.15rem 0.55rem;
     border-radius: 1rem;
     border: 1px solid #e8c8b8;
     margin-left: 0.5rem;
+    flex-shrink: 0;
 }
 .day-header {
     background: linear-gradient(135deg, #e8efe2, #d4ddd0);
-    padding: 0.9rem 1.2rem;
-    font-size: 1.1rem;
+    padding: 0.85rem 1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: #1a2e1a;
     display: flex;
@@ -406,9 +416,9 @@ body::after {
     user-select: none;
     transition: background 0.2s;
     border-bottom: 1px solid #d4ddd0;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
-.day-header:hover { background: linear-gradient(135deg, #d4ddd0, #c8d4be); }
+.day-header:hover { background: linear-gradient(135deg, #dde8d6, #cdd8c4); }
 .day-header-left {
     display: flex;
     align-items: center;
@@ -453,21 +463,43 @@ body::after {
 
 /* ========== 时间块 ========== */
 .time-block {
-    margin-bottom: 1.4rem;
-    border-left: 3px solid #5a8a52;
-    padding-left: 1rem;
+    margin-bottom: 1.2rem;
     position: relative;
+    background: #fefcf8;
+    border-radius: 0 0.6rem 0.6rem 0;
+    padding: 0.6rem 0.8rem 0.6rem 1rem;
+    border: 1px solid #e8efe2;
+    border-left: 3px solid #5a8a52;
+    transition: box-shadow 0.2s;
 }
+.time-block:hover { box-shadow: 0 2px 10px rgba(26,46,26,0.07); }
 .time-block.meal-block {
     border-left-color: #c75b39;
-    background: #fef8f0;
+    background: linear-gradient(135deg, #fef8f0, #fdf4ea);
     border-radius: 0.6rem;
-    padding: 0.8rem 1rem;
+    padding: 0.7rem 0.8rem;
     margin-left: -0.3rem;
+    border: 1px solid #f0e0cc;
+    border-left: 3px solid #c75b39;
 }
 .time-block.meal-block .time-title { color: #c75b39; }
 .time-block:last-child { margin-bottom: 0; }
-.time-title { font-weight: 700; color: #2d5a27; margin-bottom: 0.4rem; font-size: 0.95rem; }
+.time-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.15rem;
+}
+.time-title {
+    font-weight: 700;
+    color: #2d5a27;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
 .time-desc { font-size: 0.88rem; color: #2a3a2a; line-height: 1.6; }
 .meal-rec {
     background: #fef8f0;
@@ -864,44 +896,92 @@ body::after {
 /* ========== 展开按钮提示 ========== */
 .expand-hint {
     margin-left: auto;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     color: #8a9a8a;
-}
-.time-block.expanded .expand-hint {
-    color: #5a8a52;
-    font-size: 0;
-}
-.time-block.expanded .expand-hint::after {
-    content: '收起';
-    font-size: 0.7rem;
-}
-
-/* ========== 美食推荐轻量标签 ========== */
-.food-tags-inline {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-}
-.food-tag {
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    padding: 0.2rem 0.5rem;
-    background: #fefcf8;
-    border: 1px solid #e8efe2;
-    border-radius: 1rem;
-    font-size: 0.75rem;
+    gap: 0.15rem;
 }
-.food-tag-name {
-    font-weight: 600;
-    color: #6d4c41;
-}
-.food-tag-desc {
-    color: #8a9a8a;
-}
-.food-tag-nav {
+.expand-hint .collapse-hint-text { display: none; }
+.time-block.expanded .expand-hint {
     color: #5a8a52;
 }
+.time-block.expanded .expand-hint .expand-hint-text { display: none; }
+.time-block.expanded .expand-hint .collapse-hint-text { display: inline; }
+
+/* ========== 今日美食卡片（每日行程内） ========== */
+.day-food-mini-grid {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 0.3rem;
+    scroll-snap-type: x mandatory;
+}
+.day-food-mini-grid::-webkit-scrollbar { display: none; }
+.day-food-mini-card {
+    flex-shrink: 0;
+    width: 175px;
+    background: linear-gradient(135deg, #fefcf8, #fdf8f0);
+    border: 1px solid #e8dcc8;
+    border-radius: 0.7rem;
+    padding: 0.6rem 0.7rem;
+    transition: all 0.2s;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+}
+.day-food-mini-card:hover { border-color: #c75b39; transform: translateY(-1px); }
+.mini-food-name {
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: #1a2e1a;
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mini-food-desc {
+    font-size: 0.68rem;
+    color: #5a6b5a;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+}
+.mini-food-bottom {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.35rem;
+    flex-wrap: wrap;
+}
+.mini-food-tag {
+    font-size: 0.55rem;
+    padding: 0.08rem 0.35rem;
+    border-radius: 0.6rem;
+    background: #e8efe2;
+    color: #5a8a52;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.mini-food-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    font-size: 0.6rem;
+    color: #c75b39;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: auto;
+    white-space: nowrap;
+}
+.mini-food-nav:hover { text-decoration: underline; }
+.mini-food-nav i { font-size: 0.55rem; }
 
 /* ========== A4 时间块天气徽章 ========== */
 .block-weather-badge {
@@ -1063,55 +1143,6 @@ body::after {
     gap: 0.3rem;
 }
 .day-food-section .section-label i { color: #8d6e63; }
-.day-food-mini-grid {
-    display: flex;
-    gap: 0.6rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding-bottom: 0.2rem;
-}
-.day-food-mini-grid::-webkit-scrollbar { display: none; }
-.day-food-mini-card {
-    flex-shrink: 0;
-    width: 200px;
-    background: #fefcf8;
-    border: 1px solid #e8dcc8;
-    border-radius: 0.6rem;
-    padding: 0.6rem 0.7rem;
-    transition: all 0.2s;
-}
-.day-food-mini-card:hover { border-color: #c75b39; }
-.day-food-mini-card .mini-food-name {
-    font-weight: 700;
-    font-size: 0.82rem;
-    color: #1a2e1a;
-    margin-bottom: 0.15rem;
-}
-.day-food-mini-card .mini-food-location {
-    font-size: 0.65rem;
-    color: #7a8a7a;
-    margin-bottom: 0.3rem;
-}
-.day-food-mini-card .mini-food-desc {
-    font-size: 0.7rem;
-    color: #5a6b5a;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.day-food-mini-card .mini-food-nav {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    font-size: 0.65rem;
-    color: #2d5a27;
-    margin-top: 0.3rem;
-    text-decoration: none;
-}
-.day-food-mini-card .mini-food-nav:hover { text-decoration: underline; }
 
 /* ========== 今日Checklist（卡片内） ========== */
 .day-checklist {
@@ -1440,29 +1471,30 @@ footer {
     .weather-update-time { font-size: 0.55rem; }
 
     /* 每日卡片 */
-    .day-card { margin-bottom: 0.8rem; border-radius: 0.8rem; }
+    .day-card { margin-bottom: 0.8rem; border-radius: 0.85rem; }
     .day-header {
-        padding: 0.6rem 0.8rem;
+        padding: 0.6rem 0.75rem;
         font-size: 0.9rem;
         gap: 0.3rem;
     }
     .day-header-left { gap: 0.4rem; }
-    .day-header-left > span { font-size: 0.85rem; }
-    .day-body { padding: 0.7rem 0.8rem; }
+    .day-header-left > span { font-size: 0.82rem; }
+    .day-body { padding: 0.65rem 0.75rem; }
     .intensity-dot { width: 6px; height: 6px; }
     .intensity-label { font-size: 0.6rem; margin-left: 0.25rem; }
 
     /* 时间块 */
     .time-block {
-        margin-bottom: 1rem;
-        padding-left: 0.7rem;
+        margin-bottom: 0.9rem;
+        padding: 0.5rem 0.7rem 0.5rem 0.8rem;
         border-left-width: 2.5px;
     }
     .time-block.meal-block {
-        padding: 0.6rem 0.7rem;
+        padding: 0.55rem 0.7rem;
         margin-left: -0.2rem;
     }
-    .time-title { font-size: 0.88rem; margin-bottom: 0.3rem; }
+    .time-title-row { gap: 0.25rem; }
+    .time-title { font-size: 0.88rem; }
     .time-desc { font-size: 0.82rem; line-height: 1.55; }
     .meal-rec { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
     .attention-note { font-size: 0.72rem; padding: 0.35rem 0.6rem; }
@@ -1592,7 +1624,11 @@ footer {
     }
 
     /* L1/L2 时间块 */
-    .time-block .time-summary { font-size: 0.78rem; }
+    .time-block .time-summary {
+        font-size: 0.78rem;
+        min-height: 2.2rem;
+        padding: 0.25rem 0;
+    }
 
     /* 次日预告 */
     .next-day-preview {
@@ -1601,12 +1637,13 @@ footer {
     }
 
     /* 今日美食推荐 */
+    .day-food-mini-grid { gap: 0.5rem; }
     .day-food-mini-card {
-        width: 170px;
+        width: 160px;
         padding: 0.5rem 0.6rem;
     }
-    .day-food-mini-card .mini-food-name { font-size: 0.78rem; }
-    .day-food-mini-card .mini-food-desc { font-size: 0.65rem; }
+    .mini-food-name { font-size: 0.78rem; }
+    .mini-food-desc { font-size: 0.65rem; }
 
     /* 今日Checklist */
     .day-checklist { padding: 0.4rem 0.6rem; }
