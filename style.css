@@ -999,7 +999,7 @@ body::after {
 
 /* ========== A4 时间块天气徽章 ========== */
 .block-weather-badge {
-    display: inline-flex;
+    display: none;
     align-items: center;
     gap: 0.2rem;
     margin-left: 0.5rem;
@@ -1011,6 +1011,9 @@ body::after {
     color: #4a6fa5;
     white-space: nowrap;
     vertical-align: middle;
+}
+.time-block.expanded .block-weather-badge {
+    display: inline-flex;
 }
 .block-rain-indicator {
     color: #1565c0;
@@ -1660,10 +1663,16 @@ footer {
         font-size: 0.72rem;
     }
 
-    /* 今日美食推荐 */
-    .day-food-mini-grid { gap: 0.5rem; }
+    /* 今日美食推荐 — 移动端单列垂直布局 */
+    .day-food-mini-grid {
+        flex-direction: column;
+        overflow-x: visible;
+        scroll-snap-type: none;
+        gap: 0.5rem;
+    }
     .day-food-mini-card {
-        width: 160px;
+        width: 100%;
+        flex-shrink: 0;
         padding: 0.5rem 0.6rem;
     }
     .mini-food-name { font-size: 0.78rem; }
