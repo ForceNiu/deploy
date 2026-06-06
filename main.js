@@ -268,6 +268,8 @@ function buildDailyCards() {
         // === L0 概览层 ===
         const firstTime = getFirstActivityTime(day.blocks);
         const wData = (info.city !== 'move' && weatherData[info.city]) ? weatherData[info.city][dateKey] : null;
+        const blockCount = day.blocks.filter(b => b.type !== 'meal').length;
+        const durationBlocks = day.blocks.filter(b => b.duration);
         let overviewHtml = '<div class="day-overview">';
         if (firstTime) {
             overviewHtml += `<span class="overview-time">⏰ ${firstTime} 出发</span>`;
@@ -280,6 +282,9 @@ function buildDailyCards() {
             if (wData.precip !== null && wData.precip >= 30) {
                 overviewHtml += `<span class="overview-rain-badge">💧 降雨${wData.precip}%</span>`;
             }
+        }
+        if (blockCount > 0) {
+            overviewHtml += `<span class="overview-stats">📍 ${blockCount}个景点</span>`;
         }
         overviewHtml += '</div>';
 
@@ -362,9 +367,10 @@ function buildDailyCards() {
 
         // === 组装Day Card ===
         const intensityLabels = ['', '轻松', '适中', '充实'];
+        const collapseAllBtn = `<span class="collapse-all-btn" onclick="event.stopPropagation();collapseAllBlocks(${idx})" title="收起全部"><i class="fas fa-compress-alt"></i></span>`;
         html += `<div class="day-card" id="day-${idx}">` +
             `<div class="day-header" onclick="toggleDay(${idx})">` +
-            `<div class="day-header-left"><i class="far fa-calendar-alt"></i><span>${day.date} · ${day.dayTitle}</span></div>` +
+            `<div class="day-header-left"><i class="far fa-calendar-alt"></i><span>${day.date} · ${day.dayTitle}</span>${collapseAllBtn}</div>` +
             `<div style="display:flex; align-items:center; gap:0.6rem;">${buildIntensityBar(day.intensity)}<span class="intensity-label">${intensityLabels[day.intensity]}</span><i class="fas fa-chevron-down collapse-icon"></i></div>` +
             `</div>` +
             `<div class="day-body">` +
@@ -413,7 +419,19 @@ function buildNextDayPreview(dayIdx) {
         `</div>`;
 }
 
-// ========== 今日Checklist ==========
+// ========== 今日Checklist（localStorage 持久化） ==========
+const CHECKLIST_KEY = 'travel_checklist_state';
+
+function getChecklistState() {
+    try { return JSON.parse(localStorage.getItem(CHECKLIST_KEY)) || {}; } catch { return {}; }
+}
+
+function saveChecklistState(name, checked) {
+    const state = getChecklistState();
+    if (checked) state[name] = true; else delete state[name];
+    localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
+}
+
 function buildDayChecklist(dayIdx) {
     if (typeof packingItems === 'undefined') return '';
     const essentialItems = packingItems.filter(i => i.essential);
@@ -425,11 +443,22 @@ function buildDayChecklist(dayIdx) {
         dayItems.push(essentialItems[(startIdx + i) % essentialItems.length]);
     }
 
-    let itemsHtml = dayItems.map(item =>
-        `<span class="check-item" onclick="this.classList.toggle('checked')"><i class="far fa-square"></i> ${item.name}</span>`
-    ).join('');
+    const savedState = getChecklistState();
+    let itemsHtml = dayItems.map(item => {
+        const checked = savedState[item.name] ? ' checked' : '';
+        const icon = savedState[item.name] ? 'fa-check-square' : 'fa-square';
+        return `<span class="check-item${checked}" data-name="${item.name}" onclick="toggleCheckItem(this)"><i class="far ${icon}"></i> ${item.name}</span>`;
+    }).join('');
 
     return `<div class="day-checklist"><div class="checklist-label"><i class="fas fa-check-square"></i> 今日提醒</div><div class="checklist-items">${itemsHtml}</div></div>`;
+}
+
+function toggleCheckItem(el) {
+    const name = el.dataset.name;
+    const isChecked = el.classList.toggle('checked');
+    const icon = el.querySelector('i');
+    icon.className = isChecked ? 'far fa-check-square' : 'far fa-square';
+    saveChecklistState(name, isChecked);
 }
 
 // ========== 今日美食推荐 ==========
@@ -484,6 +513,12 @@ function toggleDay(idx) {
 function toggleBlock(dayIdx, blockIdx) {
     const block = document.getElementById(`block-${dayIdx}-${blockIdx}`);
     if (block) block.classList.toggle('expanded');
+}
+
+function collapseAllBlocks(dayIdx) {
+    const dayCard = document.getElementById(`day-${dayIdx}`);
+    if (!dayCard) return;
+    dayCard.querySelectorAll('.time-block.expanded').forEach(b => b.classList.remove('expanded'));
 }
 
 function toggleClamp(dayIdx, blockIdx) {
@@ -727,9 +762,10 @@ function applyWeatherDynamic() {
     });
 }
 
-// ========== 清单 ==========
+// ========== 清单（localStorage 持久化） ==========
 function renderPackingChecklist() {
     const categoryMap = { "防雨": { title: "🌂 防雨装备", icon: "fa-umbrella" }, "药品": { title: "💊 健康药品", icon: "fa-capsules" }, "其他": { title: "🦟 驱蚊防晒 & 其他", icon: "fa-bug" } };
+    const savedState = getChecklistState();
     let html = '';
     for (let cat of ["防雨", "药品", "其他"]) {
         const catItems = packingItems.filter(i => i.category === cat);
@@ -737,12 +773,23 @@ function renderPackingChecklist() {
         html += `<div class="checklist-category"><div class="checklist-title"><i class="fas ${categoryMap[cat].icon}"></i> ${categoryMap[cat].title}</div><ul class="checklist">`;
         catItems.forEach(item => {
             const cls = item.essential ? 'essential' : '';
-            const icon = item.essential ? 'fa-star' : 'fa-check-circle';
-            html += `<li class="${cls}"><i class="fas ${icon}"></i> ${item.name}</li>`;
+            const checked = savedState[item.name];
+            const icon = checked ? 'fa-check-square' : (item.essential ? 'fa-star' : 'fa-check-circle');
+            const checkedCls = checked ? ' checked' : '';
+            html += `<li class="${cls}${checkedCls}" data-name="${item.name}" onclick="togglePackItem(this)"><i class="fas ${icon}"></i> ${item.name}</li>`;
         });
         html += `</ul></div>`;
     }
     document.getElementById('packingListCheck').innerHTML = html;
+}
+
+function togglePackItem(el) {
+    const name = el.dataset.name;
+    const isChecked = el.classList.toggle('checked');
+    const icon = el.querySelector('i');
+    const isEssential = el.classList.contains('essential');
+    icon.className = isChecked ? 'fas fa-check-square' : (isEssential ? 'fas fa-star' : 'fas fa-check-circle');
+    saveChecklistState(name, isChecked);
 }
 
 // ========== Tab计数更新 ==========
@@ -864,14 +911,25 @@ function setupScrollProgress() {
     });
 }
 
-// ========== 快捷导航跳转 ==========
+// ========== 快捷导航跳转（联动展开） ==========
 function scrollToSection(section) {
     const sectionMap = { 'weather': '行程天气', 'daily': '每日行程', 'food': '必吃美食', 'gift': '伴手礼', 'ticket': '门票价格', 'checklist': '雨季行装' };
     const title = sectionMap[section];
     if (!title) return;
     const titles = document.querySelectorAll('.section-title');
     for (const el of titles) {
-        if (el.textContent.includes(title)) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); break; }
+        if (el.textContent.includes(title)) {
+            // 自动展开收起的模块
+            if (el.classList.contains('collapsed')) {
+                el.classList.remove('collapsed');
+                const content = el.nextElementSibling;
+                if (content && content.classList.contains('section-content')) {
+                    content.classList.remove('collapsed');
+                }
+            }
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            break;
+        }
     }
 }
 

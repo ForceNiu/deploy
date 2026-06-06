@@ -441,6 +441,20 @@ body::after {
     transition: transform 0.3s ease;
 }
 .day-card.collapsed .collapse-icon { transform: rotate(-90deg); }
+.collapse-all-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.5rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.4rem;
+    font-size: 0.6rem;
+    color: #8a9a8a;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0;
+}
+.day-card:hover .collapse-all-btn { opacity: 1; }
+.collapse-all-btn:hover { background: rgba(45,90,39,0.1); color: #2d5a27; }
 .day-body {
     padding: 1rem 1.2rem;
     overflow: visible;
@@ -865,6 +879,9 @@ body::after {
 .checklist li i { color: #5a8a52; font-size: 0.7rem; flex-shrink: 0; }
 .checklist li.essential { font-weight: 600; color: #2d5a27; }
 .checklist li.essential i { color: #c75b39; }
+.checklist li.checked { opacity: 0.5; text-decoration: line-through; }
+.checklist li.checked i { color: #5a8a52; }
+.checklist li { cursor: pointer; transition: opacity 0.2s; }
 
 /* ========== B1 颜色语义系统 ========== */
 .semantic-time .time-title { color: #e65100; }
@@ -1073,6 +1090,14 @@ body::after {
     padding: 0.1rem 0.4rem;
     border-radius: 0.8rem;
     font-weight: 500;
+    white-space: nowrap;
+}
+.day-overview .overview-stats {
+    font-size: 0.68rem;
+    color: #5a8a52;
+    padding: 0.1rem 0.4rem;
+    background: #f0f7f0;
+    border-radius: 0.8rem;
     white-space: nowrap;
 }
 
@@ -1339,7 +1364,7 @@ footer {
     text-align: center; margin-top: 2.5rem;
     font-size: 0.75rem; color: #7a8a7a;
     border-top: 1px solid #d4ddd0; padding-top: 1.2rem;
-    padding-bottom: 3.5rem;
+    padding-bottom: 4.5rem;
 }
 
 /* ========== 滚动进度条 ========== */
