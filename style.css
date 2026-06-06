@@ -302,7 +302,6 @@ body::after {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
-    grid-auto-rows: 1fr;
 }
 .food-card {
     background: #fefcf8;
@@ -355,6 +354,10 @@ body::after {
     color: #2a3a2a;
     line-height: 1.5;
     flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 .food-tags {
     display: flex;
