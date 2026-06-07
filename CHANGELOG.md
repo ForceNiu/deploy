@@ -43,28 +43,34 @@
 - **效果**: 快速了解当天活动数量
 
 ### 5.7 概览层天气动态更新
-- **commit**: pending
+- **commit**: `2c64d83`
 - **文件**: `main.js`
 - **改动**: 概览层天气改为占位+动态填充，天气 API 加载完成后 `updateOverviewWeather()` 更新所有每日概览
 - **效果**: 天气数据始终是实时的，不再依赖渲染时的快照
 
 ### 5.8 关键时间节点展示
-- **commit**: pending
+- **commit**: `2c64d83`
 - **文件**: `main.js`、`style.css`
 - **改动**: 概览层提取日出/竹筏/日落等关键时间节点，橙色标签展示
 - **效果**: 快速了解当天核心行程节点
 
 ### 5.9 门票价格关联购票渠道
-- **commit**: pending
+- **commit**: `2c64d83`
 - **文件**: `main.js`、`style.css`
 - **改动**: 价格汇总表"备注"列改为"购票渠道"，显示小程序/现场购票；新增分类合计（景区/景点）
 - **效果**: 一目了然在哪买票，费用分类清晰
 
 ### 5.10 底部浮窗智能隐藏
-- **commit**: pending
+- **commit**: `b07ff6e`
 - **文件**: `main.js`、`style.css`
 - **改动**: 滚动到 footer 区域时底部浮窗 `translateY(100%)` 滑出隐藏，带 0.3s 过渡动画
 - **效果**: footer 内容不再被遮挡
+
+### 5.11 修复 wData 未定义报错
+- **commit**: `dc843a8`
+- **文件**: `main.js`
+- **改动**: 概览层重构时误删 `wData` 变量定义，导致时间块渲染 `buildBlockWeatherBadge(wData)` 抛出 ReferenceError；补回 `const wData = (info.city !== 'move' && weatherData[info.city]) ? weatherData[info.city][dateKey] : null`
+- **效果**: 页面正常渲染，天气徽章恢复显示
 
 ---
 
