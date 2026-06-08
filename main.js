@@ -579,6 +579,18 @@ function buildFoodLinks(spots) {
 let currentFoodFilter = 'all';
 let currentFoodTypeFilter = 'all';
 
+function renderStars(rating) {
+    if (!rating) return '';
+    const full = Math.floor(rating);
+    const half = rating % 1 >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    return '<span class="food-rating">' +
+        '★'.repeat(full) +
+        (half ? '☆' : '') +
+        '☆'.repeat(empty) +
+        `<span class="rating-num">${rating}</span></span>`;
+}
+
 function buildFoodGrid() {
     const container = document.getElementById('foodGrid');
     let html = '';
@@ -587,7 +599,8 @@ function buildFoodGrid() {
         if (currentFoodTypeFilter !== 'all' && food.type !== currentFoodTypeFilter) return;
         const tagsHtml = food.tags.map(t => `<span class="food-tag">${t}</span>`).join('');
         const mapHtml = food.mapUrl ? `<a href="${food.mapUrl}" target="_blank" rel="noopener" class="food-nav-btn"><i class="fas fa-location-arrow"></i> 导航去店铺</a>` : '';
-        html += `<div class="food-card" id="food-${idx}"><div class="food-info"><div class="food-name">${food.name}</div><div class="food-location"><i class="fas fa-map-marker-alt"></i>${food.location}</div><div class="food-desc">${food.desc}</div><div class="food-tags">${tagsHtml}</div>${mapHtml}</div></div>`;
+        const ratingHtml = renderStars(food.rating);
+        html += `<div class="food-card" id="food-${idx}"><div class="food-info"><div class="food-name-row"><span class="food-name">${food.name}</span>${ratingHtml}</div><div class="food-location"><i class="fas fa-map-marker-alt"></i>${food.location}</div><div class="food-desc">${food.desc}</div><div class="food-tags">${tagsHtml}</div>${mapHtml}</div></div>`;
     });
     container.innerHTML = html || '<div style="text-align:center; color:#5a6b5a; padding:2rem;">暂无该类型美食数据</div>';
 }

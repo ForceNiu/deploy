@@ -343,7 +343,24 @@ body::after {
     font-weight: 700;
     font-size: 1rem;
     color: #1a2e1a;
+}
+.food-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 0.2rem;
+}
+.food-rating {
+    color: #e8a838;
+    font-size: 0.75rem;
+    letter-spacing: -1px;
+    white-space: nowrap;
+}
+.rating-num {
+    color: #6b7b6b;
+    font-size: 0.7rem;
+    margin-left: 0.2rem;
+    font-weight: 500;
 }
 .food-nav-btn {
     display: inline-flex;
@@ -1645,6 +1662,8 @@ footer {
     .food-desc { font-size: 0.78rem; line-height: 1.45; }
     .food-tag { font-size: 0.6rem; padding: 0.1rem 0.4rem; }
     .food-nav-btn { font-size: 0.7rem; padding: 0.25rem 0.6rem; margin-top: 0.4rem; }
+    .food-rating { font-size: 0.65rem; }
+    .rating-num { font-size: 0.6rem; }
 
     /* 伴手礼卡片 */
     .gift-grid {
