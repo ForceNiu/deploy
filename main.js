@@ -517,6 +517,52 @@ function isRainyDay(dayIdx) {
            [51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(wData.code);
 }
 
+// ========== 雨天备选提示条 ==========
+function buildRainAlertHtml(day, dayIdx) {
+    // 检查是否下雨
+    if (!isRainyDay(dayIdx)) return '';
+
+    // 收集该天所有有 rainPlan 的 block
+    const rainPlans = [];
+    day.blocks.forEach((block, blockIdx) => {
+        if (block.rainPlan) {
+            rainPlans.push({
+                time: block.time,
+                title: block.desc ? block.desc.split('。')[0].slice(0, 20) : '',
+                plan: block.rainPlan,
+                blockIdx
+            });
+        }
+    });
+
+    if (rainPlans.length === 0) return '';
+
+    // 构建汇总卡片内容
+    let cardsHtml = '';
+    rainPlans.forEach(item => {
+        cardsHtml += `<div class="rain-card-item">` +
+            `<div class="rain-card-time">${item.time}</div>` +
+            `<div class="rain-card-title">${item.title}</div>` +
+            `<div class="rain-card-plan">${item.plan}</div>` +
+            `</div>`;
+    });
+
+    return `<div class="rain-alert-block" id="rain-alert-${dayIdx}">` +
+        `<div class="rain-alert-bar" onclick="toggleRainAlert(${dayIdx})">` +
+        `<div class="rain-alert-left"><i class="fas fa-cloud-rain"></i><span>今日有雨，点击查看备选方案</span></div>` +
+        `<i class="fas fa-chevron-down rain-alert-icon"></i>` +
+        `</div>` +
+        `<div class="rain-alert-content">${cardsHtml}</div>` +
+        `</div>`;
+}
+
+// 切换雨天备选显示
+function toggleRainAlert(dayIdx) {
+    const block = document.getElementById(`rain-alert-${dayIdx}`);
+    if (!block) return;
+    block.classList.toggle('rain-alert-expanded');
+}
+
 // ========== 构建每日卡片（L0/L1/L2 三层） ==========
 function buildDailyCards() {
     const container = document.getElementById('dailyCards');
@@ -671,6 +717,9 @@ function buildDailyCards() {
         // === 住宿信息 ===
         const accommodationHtml = buildAccommodationHtml(day);
 
+        // === 雨天备选提示条 ===
+        const rainAlertHtml = buildRainAlertHtml(day, idx);
+
         // === 高德地图路线按钮 ===
         const routeUrl = buildAmapRouteUrl(day);
         const routeBtnHtml = routeUrl ? `<div class="route-btn-block"><a href="${routeUrl}" target="_blank" rel="noopener" class="route-btn"><i class="fas fa-route"></i> 查看当日路线</a></div>` : '';
@@ -686,6 +735,7 @@ function buildDailyCards() {
             `<div class="day-body">` +
             overviewHtml +
             accommodationHtml +
+            rainAlertHtml +
             routeBtnHtml +
             dayChecklistHtml +
             blocksHtml +
