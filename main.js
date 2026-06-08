@@ -664,21 +664,23 @@ function buildPriceSummary() {
 function checkWeatherAlerts() {
     const alerts = [];
     const dates = getDateRange(TRIP_START, TRIP_END);
-    for (let date of dates) {
-        const wy = weatherData.wuyi[date];
-        const ls = weatherData.lushan[date];
-        const jj = weatherData.jiujiang[date];
-        [wy, ls, jj].forEach((d, i) => {
-            const city = ['武夷山', '庐山', '九江'][i];
-            if (d && d.tmax >= 35) alerts.push({ type: 'hot', text: `${date.slice(5)} ${city} 高温 ${Math.round(d.tmax)}°C，注意防暑` });
-            if (d && (d.code === 65 || d.code === 95 || d.code === 96 || d.code === 99)) alerts.push({ type: 'rain', text: `${date.slice(5)} ${city} ${wmoToText(d.code)}，户外活动注意安全` });
-        });
-    }
+    dates.forEach((date, idx) => {
+        const cityInfo = getCityForDay(idx);
+        if (cityInfo.city === 'move') return; // 转场日不检查天气预警
+
+        const cityKey = cityInfo.city;
+        const cityName = cityInfo.cityName;
+        const d = weatherData[cityKey] ? weatherData[cityKey][date] : null;
+
+        if (d && d.tmax >= 35) alerts.push({ type: 'hot', text: `${date.slice(5)} ${cityName} 高温 ${Math.round(d.tmax)}°C，注意防暑` });
+        if (d && (d.code === 65 || d.code === 95 || d.code === 96 || d.code === 99)) alerts.push({ type: 'rain', text: `${date.slice(5)} ${cityName} ${wmoToText(d.code)}，户外活动注意安全` });
+    });
     const container = document.getElementById('weatherAlerts');
     if (alerts.length === 0) { container.innerHTML = ''; return; }
     const unique = [...new Set(alerts.map(a => a.text))].slice(0, 5);
     const alertType = alerts[0].type;
-    container.innerHTML = `<div class="weather-alert ${alertType}"><i class="fas ${alertType === 'hot' ? 'fa-exclamation-triangle' : 'fa-cloud-rain'}"></i><span><strong>天气提醒：</strong>${unique.join('；')}</span></div>`;
+    const updateStr = weatherUpdateTime ? weatherUpdateTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '';
+    container.innerHTML = `<div class="weather-alert ${alertType}"><i class="fas ${alertType === 'hot' ? 'fa-exclamation-triangle' : 'fa-cloud-rain'}"></i><span><strong>天气提醒：</strong>${unique.join('；')}</span></div><div class="weather-forecast-note">📅 预报仅供参考，${updateStr ? '更新于 ' + updateStr + '，' : ''}出发前3天再确认</div>`;
 }
 
 // ========== 概览层天气动态更新 ==========

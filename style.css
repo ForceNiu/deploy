@@ -870,6 +870,13 @@ body::after {
     border-color: #e8b0b0;
     color: #8a3a3a;
 }
+.weather-forecast-note {
+    font-size: 0.72rem;
+    color: #8a8a8a;
+    text-align: center;
+    margin-top: 0.4rem;
+    font-style: italic;
+}
 
 /* ========== 清单 ========== */
 .checklist-card {
