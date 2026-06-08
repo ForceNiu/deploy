@@ -108,7 +108,7 @@ function renderWeatherCards() {
             html += `<div class="weather-card">
                 <div class="weather-date">${date.slice(5)}</div>
                 <div class="weather-icon">${wmoToEmoji(d.code)}</div>
-                <div style="font-size:0.7rem; color:#81c784;">${wmoToText(d.code)}</div>
+                <div class="weather-city-temp" style="font-size:0.7rem;">${wmoToText(d.code)}</div>
                 <div class="temp">${Math.round(d.tmin)}~${Math.round(d.tmax)}°</div>
                 ${d.precip !== null ? `<div class="weather-note">💧 ${d.precip}%</div>` : ''}
                 ${d.src !== 'forecast' ? `<div class="weather-src">参考</div>` : ''}
@@ -152,7 +152,7 @@ async function renderWeather() {
         const timeStr = weatherUpdateTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
         note.innerHTML = `📊 实时预报 ${fc} 条 · 历史参考 ${hc} 条 · 气候参考 ${fb} 条<br><span class="weather-update-time">⏱️ 更新于 ${timeStr}</span>`;
     } catch (e) {
-        document.getElementById('weatherGrid').innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#aa4a3a;">⚠️ 天气服务暂不可用</div>';
+        document.getElementById('weatherGrid').innerHTML = '<div class="weather-error">⚠️ 天气服务暂不可用</div>';
     }
 }
 
@@ -508,8 +508,8 @@ function copyText(el, text) {
         navigator.clipboard.writeText(text).then(() => {
             const orig = el.innerHTML;
             el.innerHTML = '<i class="fas fa-check"></i> 已复制';
-            el.style.color = '#5a8a52';
-            setTimeout(() => { el.innerHTML = orig; el.style.color = ''; }, 1500);
+            el.classList.add('copy-success');
+            setTimeout(() => { el.innerHTML = orig; el.classList.remove('copy-success'); }, 1500);
         });
     }
 }
@@ -608,7 +608,7 @@ function buildFoodGrid() {
         const ratingHtml = renderStars(food.rating);
         html += `<div class="food-card" id="food-${idx}"><div class="food-info"><div class="food-name-row"><span class="food-name">${food.name}</span>${ratingHtml}</div><div class="food-location"><i class="fas fa-map-marker-alt"></i>${food.location}</div><div class="food-desc">${food.desc}</div><div class="food-tags">${tagsHtml}</div>${mapHtml}</div></div>`;
     });
-    container.innerHTML = html || '<div style="text-align:center; color:#5a6b5a; padding:2rem;">暂无该类型美食数据</div>';
+    container.innerHTML = html || '<div class="empty-state-text">暂无该类型美食数据</div>';
 }
 
 document.getElementById('foodTabs').addEventListener('click', (e) => {
@@ -642,7 +642,7 @@ function buildGiftGrid() {
         const tagsHtml = gift.tags.map(t => `<span class="gift-tag gift-tag-${t.type}">${t.text}</span>`).join('');
         html += `<div class="gift-card"><div class="gift-header"><div class="gift-icon ${regionClass}">${icon}</div><div class="gift-name">${gift.name}</div><span class="gift-city">${gift.city}</span></div><div class="gift-desc">${gift.desc}</div><div class="gift-footer"><div>${tagsHtml}</div><div class="gift-price">${gift.price}</div></div><div class="gift-where"><i class="fas fa-store" style="margin-right:0.3rem;"></i>${gift.where}</div></div>`;
     });
-    container.innerHTML = html || '<div style="text-align:center; color:#5a6b5a; padding:2rem;">暂无该城市伴手礼数据</div>';
+    container.innerHTML = html || '<div class="empty-state-text">暂无该城市伴手礼数据</div>';
 }
 
 document.getElementById('giftTabs').addEventListener('click', (e) => {
@@ -1053,6 +1053,7 @@ window.addEventListener('DOMContentLoaded', () => {
     setupBackToTop();
     setupScrollProgress();
     setupBottomNav();
+    applyTheme(getTheme());
     let ticking = false;
     window.addEventListener('scroll', () => {
         if (!ticking) {
@@ -1060,4 +1061,23 @@ window.addEventListener('DOMContentLoaded', () => {
             ticking = true;
         }
     });
+});
+
+// ========== 深色模式 ==========
+function getTheme() {
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+function toggleTheme() {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    applyTheme(next);
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (!localStorage.getItem('theme')) applyTheme(e.matches ? 'dark' : 'light');
 });
