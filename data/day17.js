@@ -1,6 +1,8 @@
 window._day17 = {
     date: "6/17 周三",
     dayTitle: "含鄱口日出·五老峰·芦林三宝·锦绣谷",
+    walkDistance: "10km",
+    totalDuration: "8h",
     intensity: 3,
     dateKey: "2026-06-17",
     accommodation: "庐山牯岭镇（续住。今天强度最大，五老峰+芦林三宝+锦绣谷，晚上好好休息泡热水澡）",

@@ -2,6 +2,8 @@ window._day19 = {
     date: "6/19 周五",
     dateKey: "2026-06-19",
     dayTitle: "浔阳古城·长江落日",
+    walkDistance: "3km",
+    totalDuration: "4h",
     intensity: 1,
     accommodation: "九江八里湖新区维也纳酒店（续住，明天退房返程）",
     blocks: [

@@ -1,6 +1,8 @@
 window._day15 = {
     date: "6/15 周一",
     dayTitle: "一线天·虎啸岩",
+    walkDistance: "5km",
+    totalDuration: "5h",
     intensity: 2,
     dateKey: "2026-06-15",
     accommodation: "武夷山明曦堂茶宿（三姑度假区五丰花园17幢，最后一晚续住）",

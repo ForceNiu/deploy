@@ -1161,6 +1161,15 @@ body::after {
     border-radius: 0.8rem;
     white-space: nowrap;
 }
+.day-overview .overview-walk,
+.day-overview .overview-duration {
+    font-size: 0.68rem;
+    color: #4a7a8a;
+    padding: 0.1rem 0.4rem;
+    background: #f0f5f8;
+    border-radius: 0.8rem;
+    white-space: nowrap;
+}
 .day-overview .overview-key-node {
     font-size: 0.68rem;
     color: #c75b39;
@@ -1758,6 +1767,11 @@ footer {
     .day-overview .overview-rain-badge,
     .day-overview .overview-ticket-badge {
         font-size: 0.6rem;
+    }
+    .day-overview .overview-walk,
+    .day-overview .overview-duration {
+        font-size: 0.6rem;
+        padding: 0.08rem 0.35rem;
     }
 
     /* L1/L2 时间块 */

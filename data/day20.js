@@ -1,6 +1,8 @@
 window._day20 = {
     date: "6/20 周六",
     dayTitle: "返程",
+    walkDistance: "0.5km",
+    totalDuration: "2h",
     intensity: 1,
     dateKey: "2026-06-20",
     weekend: true,

@@ -2,6 +2,8 @@ window._day12 = {
     date: "6/12 周五",
     dateKey: "2026-06-12",
     dayTitle: "启程入山",
+    walkDistance: "0.5km",
+    totalDuration: "2h",
     intensity: 1,
     accommodation: "武夷山明曦堂茶宿（三姑度假区五丰花园17幢，携程4.9分，2024年新开业。老板娘热情周到，会推荐小众景点+帮忙规划路线。住客评价：「开窗能听到鸟叫，睡得特香」「每个房间都有茶桌喝茶，樟木衣橱，小度智能音箱+电动窗帘」）",
     blocks: [

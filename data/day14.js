@@ -2,6 +2,8 @@ window._day14 = {
     date: "6/14 周日",
     dateKey: "2026-06-14",
     dayTitle: "竹筏·品茶·慢时光",
+    walkDistance: "2km",
+    totalDuration: "4h",
     weekend: true,
     intensity: 1,
     accommodation: "武夷山明曦堂茶宿（三姑度假区五丰花园17幢，续住）",

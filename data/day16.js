@@ -1,6 +1,8 @@
 window._day16 = {
     date: "6/16 周二",
     dayTitle: "日出·转场庐山",
+    walkDistance: "3km",
+    totalDuration: "6h",
     intensity: 2,
     dateKey: "2026-06-16",
     accommodation: "庐山牯岭镇（山上唯一生活配套区，打车又贵又拒短途，观光车是唯一选择。山上物价比山下高约30%）",

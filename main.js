@@ -288,6 +288,12 @@ function buildDailyCards() {
         if (blockCount > 0) {
             overviewHtml += `<span class="overview-stats">📍 ${blockCount}个景点</span>`;
         }
+        if (day.walkDistance) {
+            overviewHtml += `<span class="overview-walk">🚶 ${day.walkDistance}</span>`;
+        }
+        if (day.totalDuration) {
+            overviewHtml += `<span class="overview-duration">⏱ ${day.totalDuration}</span>`;
+        }
         overviewHtml += '</div>';
 
         // === 时间块（L1 摘要 + L2 详情）===
