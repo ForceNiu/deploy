@@ -450,6 +450,80 @@ body::after {
 }
 .hero p { font-size: 1rem; color: var(--text-muted); margin-top: 0.4rem; font-weight: 400; letter-spacing: 1px; position: relative; }
 
+/* ========== 出发倒计时 ========== */
+.countdown {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    font-size: 1rem;
+    position: relative;
+}
+.countdown-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.countdown-unit {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.countdown-number {
+    display: inline-block;
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: 'Inter', monospace;
+    min-width: 2.5rem;
+    text-align: center;
+    position: relative;
+    animation: flipIn 0.6s ease-out;
+}
+@keyframes flipIn {
+    0% { transform: rotateX(90deg); opacity: 0; }
+    100% { transform: rotateX(0deg); opacity: 1; }
+}
+
+/* 出发前配色 */
+.countdown-before .countdown-number {
+    color: var(--accent-orange-deep);
+    text-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+/* 旅途中配色 - 五彩斑斓 */
+.countdown-traveling .countdown-number[data-day="1"] { color: #FF6B6B; }
+.countdown-traveling .countdown-number[data-day="2"] { color: #FFA726; }
+.countdown-traveling .countdown-number[data-day="3"] { color: #FFCA28; }
+.countdown-traveling .countdown-number[data-day="4"] { color: #66BB6A; }
+.countdown-traveling .countdown-number[data-day="5"] { color: #42A5F5; }
+.countdown-traveling .countdown-number[data-day="6"] { color: #7E57C2; }
+.countdown-traveling .countdown-number[data-day="7"] { color: #EC407A; }
+
+/* 最后两天 - 稳重色调 */
+.countdown-last-days .countdown-number {
+    color: var(--green-primary);
+    text-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+/* 最后小时倒计时 - 柔和伤感 */
+.countdown-last-hours .countdown-number {
+    color: var(--text-muted);
+    text-shadow: 0 2px 8px rgba(156, 163, 175, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* 结束后 - 淡雅褪色 */
+.countdown-after {
+    opacity: 0.7;
+}
+.countdown-after .countdown-number {
+    color: var(--text-muted);
+    font-size: 1.5rem;
+}
+
 /* ========== 标题 ========== */
 .section-title {
     font-size: 1.3rem;
@@ -677,6 +751,15 @@ body::after {
     color: var(--accent-gold);
     font-size: 0.75rem;
     letter-spacing: -1px;
+    white-space: nowrap;
+}
+.food-price {
+    background: var(--bg-meal);
+    color: var(--accent-orange);
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.8rem;
+    font-weight: 500;
     white-space: nowrap;
 }
 .rating-num {
@@ -1360,6 +1443,15 @@ body::after {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.mini-food-price {
+    font-size: 0.65rem;
+    color: var(--accent-orange);
+    font-weight: 500;
+    flex-shrink: 0;
 }
 .mini-food-desc {
     font-size: 0.68rem;
@@ -1437,6 +1529,12 @@ body::after {
     flex-wrap: wrap;
     line-height: 1.6;
 }
+.day-overview-line {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+}
 .day-overview .overview-time {
     font-weight: 600;
     color: var(--accent-orange-deep);
@@ -1466,6 +1564,16 @@ body::after {
     border-radius: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
+}
+.day-overview .clothing-suggestion {
+    background: var(--bg-meal);
+    color: var(--accent-orange);
+    font-size: 0.68rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: help;
 }
 .day-overview .overview-ticket-badge {
     background: var(--bg-ticket);
@@ -1501,6 +1609,109 @@ body::after {
     border-radius: 0.8rem;
     white-space: nowrap;
     font-weight: 500;
+}
+
+/* ========== 住宿信息 ========== */
+.accommodation-block {
+    padding: 0.5rem 0.8rem;
+    background: var(--bg-overview);
+    border-bottom: 1px solid var(--bg-card-hover);
+    font-size: 0.8rem;
+}
+.accommodation-main {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.accommodation-icon { font-size: 0.85rem; }
+.accommodation-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.accommodation-nav {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.5rem;
+    background: var(--accent-blue);
+    color: #fff;
+    border-radius: 1rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+.accommodation-nav:hover { opacity: 0.85; }
+.accommodation-detail {
+    margin-top: 0.3rem;
+    padding-left: 1.5rem;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* ========== 高德地图路线按钮 ========== */
+.route-btn-block {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid var(--bg-card-hover);
+}
+.route-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 1rem;
+    background: linear-gradient(135deg, #1890ff, #096dd9);
+    color: #fff;
+    border-radius: 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(24, 144, 255, 0.3);
+}
+.route-btn:hover {
+    background: linear-gradient(135deg, #40a9ff, #1890ff);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+}
+.route-btn i {
+    font-size: 0.85rem;
+}
+
+/* ========== 真实评价 ========== */
+.real-review-block {
+    margin-top: 0.6rem;
+    padding: 0.5rem 0.8rem;
+    background: var(--bg-overview);
+    border-radius: 0.5rem;
+    border-left: 3px solid var(--accent-blue);
+}
+.real-review-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.real-review-title i {
+    color: var(--accent-blue);
+}
+.real-review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.real-review-item {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    font-style: italic;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--bg-card-hover);
 }
 
 /* ========== L1 摘要层 & L2 详情层 ========== */

@@ -12,6 +12,111 @@ const LOCAL_REF = {
     '九江': { code: 61, tmin: 24, tmax: 32 }
 };
 
+// ========== 景点坐标映射 ==========
+const SPOT_COORDS = {
+    // 武夷山景点
+    '武夷山': { lon: 117.9733, lat: 27.7189 },
+    '天游峰': { lon: 117.9830, lat: 27.7280 },
+    '九曲溪竹筏': { lon: 117.9780, lat: 27.7200 },
+    '武夷宫': { lon: 117.9750, lat: 27.7150 },
+    '一线天': { lon: 117.9700, lat: 27.7200 },
+    '虎啸岩': { lon: 117.9680, lat: 27.7220 },
+    '大红袍景区': { lon: 117.9600, lat: 27.7250 },
+    '水帘洞': { lon: 117.9550, lat: 27.7280 },
+    '岩骨花香': { lon: 117.9650, lat: 27.7230 },
+    '白云禅寺': { lon: 117.9800, lat: 27.7300 },
+    // 庐山景点
+    '庐山': { lon: 115.9830, lat: 29.5510 },
+    '含鄱口': { lon: 115.9900, lat: 29.5480 },
+    '五老峰': { lon: 115.9950, lat: 29.5450 },
+    '三叠泉': { lon: 116.0000, lat: 29.5420 },
+    '花径': { lon: 115.9750, lat: 29.5550 },
+    '如琴湖': { lon: 115.9730, lat: 29.5560 },
+    '锦绣谷': { lon: 115.9720, lat: 29.5570 },
+    '仙人洞': { lon: 115.9710, lat: 29.5580 },
+    '芦林湖': { lon: 115.9800, lat: 29.5520 },
+    '三宝树': { lon: 115.9780, lat: 29.5530 },
+    '黄龙潭': { lon: 115.9770, lat: 29.5540 },
+    '乌龙潭': { lon: 115.9760, lat: 29.5550 },
+    '白鹿洞书院': { lon: 116.0200, lat: 29.5300 },
+    // 九江景点
+    '四码头美食街': { lon: 116.0017, lat: 29.7050 },
+    '能仁禅寺': { lon: 115.9980, lat: 29.7080 },
+    '庾亮南路': { lon: 116.0000, lat: 29.7060 },
+    '李公堤': { lon: 116.0020, lat: 29.7070 },
+    '甘棠公园': { lon: 116.0030, lat: 29.7080 },
+    '烟水亭': { lon: 116.0010, lat: 29.7090 },
+    '浔阳楼': { lon: 115.9980, lat: 29.7100 },
+    '锁江楼': { lon: 115.9960, lat: 29.7110 },
+    '琵琶亭': { lon: 115.9940, lat: 29.7120 },
+    '长江国家文化公园': { lon: 115.9950, lat: 29.7115 },
+    '浪井广场': { lon: 116.0000, lat: 29.7055 },
+    '九派青年夜市': { lon: 116.0010, lat: 29.7045 },
+    '九江洋街': { lon: 115.9990, lat: 29.7075 },
+    '九江租界旧址': { lon: 115.9985, lat: 29.7080 },
+    '大中路步行街': { lon: 116.0005, lat: 29.7065 },
+    '梁义隆茶饼': { lon: 116.0015, lat: 29.7055 },
+    // 交通
+    '庐山机场': { lon: 115.9800, lat: 29.6800 }
+};
+
+// ========== 高德地图路线生成 ==========
+function buildAmapRouteUrl(day) {
+    const spots = [];
+    const spotNames = [];
+
+    // 收集当天所有有坐标的景点（按行程顺序）
+    if (day.blocks) {
+        day.blocks.forEach(block => {
+            if (block.spots && block.spots.length > 0) {
+                block.spots.forEach(spot => {
+                    const coords = SPOT_COORDS[spot];
+                    if (coords && !spotNames.includes(spot)) {
+                        spots.push(coords);
+                        spotNames.push(spot);
+                    }
+                });
+            }
+        });
+    }
+
+    // 没有景点就不显示按钮
+    if (spots.length === 0) return null;
+
+    // 解析住宿信息（作为可能的终点）
+    const accInfo = day.accommodation ? parseAccommodation(day.accommodation) : null;
+    const hotelName = accInfo ? accInfo.name : null;
+
+    // 组装高德地图路线规划 URL（uri.amap.com/navigation）
+    // 不传 mode，让用户自行选择出行方式
+    const enc = encodeURIComponent;
+
+    if (spots.length === 1) {
+        // 单个景点
+        const from = `${spots[0].lon},${spots[0].lat},${enc(spotNames[0])}`;
+        if (hotelName) {
+            // 有住宿：景点 → 酒店
+            return `https://uri.amap.com/navigation?from=${from}&to=${enc(hotelName)}&coordinate=gaode`;
+        }
+        // 无住宿：从当前位置到景点
+        return `https://uri.amap.com/navigation?to=${from}&coordinate=gaode`;
+    }
+
+    // 多个景点
+    const from = `${spots[0].lon},${spots[0].lat},${enc(spotNames[0])}`;
+    const viaParts = spots.slice(1).map((s, i) => `${s.lon},${s.lat},${enc(spotNames[i + 1])}`);
+    const via = viaParts.join(';');
+
+    if (hotelName) {
+        // 有住宿：景点链 → 酒店（终点）
+        return `https://uri.amap.com/navigation?from=${from}&via=${via}&to=${enc(hotelName)}&coordinate=gaode`;
+    }
+    // 无住宿：第一个景点为起点，最后一个为终点，中间为途经
+    const last = viaParts.pop();
+    const remainingVia = viaParts.length > 0 ? `&via=${viaParts.join(';')}` : '';
+    return `https://uri.amap.com/navigation?from=${from}${remainingVia}&to=${last}&coordinate=gaode`;
+}
+
 // ========== 天气工具函数 ==========
 function wmoToText(c) {
     const m = {0:'晴',1:'晴间多云',2:'多云',3:'阴',45:'雾',48:'雾',51:'毛毛雨',53:'毛毛雨',55:'毛毛雨',61:'小雨',63:'中雨',65:'大雨',80:'阵雨',81:'阵雨',95:'雷暴',96:'雷暴',99:'雷暴'};
@@ -246,6 +351,162 @@ function getSummaryText(desc) {
     return plain.slice(0, 40) + '……';
 }
 
+// ========== 真实评价解析 ==========
+function parseRealReview(str) {
+    if (!str) return [];
+    // 按句号分割，提取包含引号内容的句子
+    const sentences = str.split(/。/).filter(s => s.trim());
+    const reviews = [];
+    for (const s of sentences) {
+        // 提取「」或""中的内容
+        const match = s.match(/[「""]([^」""]+)[」""]/);
+        if (match) {
+            reviews.push(match[1].trim());
+        }
+    }
+    // 返回前 3 条
+    return reviews.slice(0, 3);
+}
+
+// ========== 真实评价渲染 ==========
+function buildRealReviewHtml(block) {
+    if (!block.realReview) return '';
+    const reviews = parseRealReview(block.realReview);
+    if (reviews.length === 0) return '';
+    let html = '<div class="real-review-block">';
+    html += '<div class="real-review-title"><i class="fas fa-comment-dots"></i> 真实评价</div>';
+    html += '<div class="real-review-list">';
+    reviews.forEach(r => {
+        html += `<div class="real-review-item">"${r}"</div>`;
+    });
+    html += '</div></div>';
+    return html;
+}
+
+// ========== 住宿信息解析 ==========
+function parseAccommodation(str) {
+    if (!str) return null;
+    const openIdx = str.indexOf('（');
+    if (openIdx === -1) return { name: str, detail: '' };
+    const name = str.slice(0, openIdx).trim();
+    const detail = str.slice(openIdx + 1).replace(/）$/, '').trim();
+    return { name, detail };
+}
+
+// ========== 住宿信息渲染 ==========
+function buildAccommodationHtml(day) {
+    if (!day.accommodation) return '';
+    const info = parseAccommodation(day.accommodation);
+    const mapUrl = `https://www.amap.com/search?query=${encodeURIComponent(info.name)}`;
+    let html = '<div class="accommodation-block">';
+    html += `<div class="accommodation-main">`;
+    html += `<span class="accommodation-icon">🏨</span>`;
+    html += `<span class="accommodation-name">${info.name}</span>`;
+    html += `<a href="${mapUrl}" target="_blank" rel="noopener" class="accommodation-nav" title="在地图中查看"><i class="fas fa-map-marker-alt"></i> 导航</a>`;
+    html += `</div>`;
+    if (info.detail) {
+        html += `<div class="accommodation-detail">${info.detail}</div>`;
+    }
+    html += '</div>';
+    return html;
+}
+
+// ========== 出发倒计时 ==========
+function updateCountdown() {
+    const container = document.getElementById('countdown');
+    if (!container) return;
+
+    const now = new Date();
+    const startDate = new Date(TRIP_START + 'T00:00:00');
+    const endDate = new Date(TRIP_END + 'T23:59:59');
+
+    // 计算时间差
+    const diffStart = startDate - now;
+    const diffEnd = now - endDate;
+
+    let html = '';
+    let phase = '';
+
+    if (diffStart > 0) {
+        // 出发前
+        const days = Math.ceil(diffStart / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diffStart % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        phase = 'before';
+
+        if (days <= 1) {
+            // 最后一天，精确到小时
+            html = `<span class="countdown-text">距出发还有</span>
+                    <span class="countdown-number" data-phase="${phase}">${hours}</span>
+                    <span class="countdown-unit">小时</span>`;
+        } else {
+            html = `<span class="countdown-text">距出发还有</span>
+                    <span class="countdown-number" data-phase="${phase}">${days}</span>
+                    <span class="countdown-unit">天</span>`;
+        }
+    } else if (diffEnd <= 0) {
+        // 旅途中
+        const dayIdx = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + 1;
+        const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+        const daysLeft = totalDays - dayIdx;
+        const hoursLeft = Math.floor((endDate - now) / (1000 * 60 * 60));
+
+        if (daysLeft <= 0) {
+            // 最后一天，显示小时倒计时
+            phase = 'last-hours';
+            html = `<span class="countdown-text">旅途最后一天</span>
+                    <span class="countdown-number" data-phase="${phase}">${hoursLeft}</span>
+                    <span class="countdown-unit">小时</span>`;
+        } else if (daysLeft <= 2) {
+            // 最后两天，稳重色调
+            phase = 'last-days';
+            html = `<span class="countdown-text">旅途第</span>
+                    <span class="countdown-number" data-phase="${phase}">${dayIdx}</span>
+                    <span class="countdown-unit">天</span>
+                    <span class="countdown-text">· 剩余</span>
+                    <span class="countdown-number" data-phase="${phase}">${daysLeft}</span>
+                    <span class="countdown-unit">天</span>`;
+        } else {
+            // 前7天，五彩斑斓
+            phase = 'traveling';
+            html = `<span class="countdown-text">旅途第</span>
+                    <span class="countdown-number" data-phase="${phase}" data-day="${dayIdx}">${dayIdx}</span>
+                    <span class="countdown-unit">天</span>`;
+        }
+    } else {
+        // 行程结束后10天内
+        const daysAfter = Math.floor(diffEnd / (1000 * 60 * 60 * 24));
+        if (daysAfter <= 10) {
+            phase = 'after';
+            html = `<span class="countdown-text">旅程结束</span>
+                    <span class="countdown-number" data-phase="${phase}">${daysAfter}</span>
+                    <span class="countdown-unit">天</span>`;
+        }
+        // 超过10天，隐藏倒计时
+    }
+
+    container.innerHTML = html;
+    container.className = `countdown ${phase ? 'countdown-' + phase : ''}`;
+}
+
+// ========== 智能定位 ==========
+function scrollToToday() {
+    const now = new Date();
+    const startDate = new Date(TRIP_START + 'T00:00:00');
+    const endDate = new Date(TRIP_END + 'T23:59:59');
+
+    // 只在行程期间自动滚动
+    if (now >= startDate && now <= endDate) {
+        const dayIdx = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+        const targetCard = document.getElementById(`day-${dayIdx}`);
+        if (targetCard) {
+            // 延迟滚动，确保页面加载完成
+            setTimeout(() => {
+                targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
+        }
+    }
+}
+
 function isRainyDay(dayIdx) {
     const info = getCityForDay(dayIdx);
     if (info.city === 'move') return false;
@@ -270,18 +531,47 @@ function buildDailyCards() {
         const blockCount = day.blocks.filter(b => b.type !== 'meal').length;
         // 提取关键时间节点
         const keyNodes = [];
+        let sunriseInfo = null;
         day.blocks.forEach(block => {
-            if (block.sunriseFor) keyNodes.push({ icon: '🌅', label: '日出', time: block.time });
+            if (block.sunriseFor) {
+                // 从 weatherData 获取真实日出时间
+                const cityKey = block.sunriseFor;
+                const wData = weatherData[cityKey] && weatherData[cityKey][dateKey];
+                let sunriseTime = null;
+                if (wData && wData.sunrise) {
+                    // 解析 ISO 8601 格式（如 "2026-06-16T05:13"）
+                    const match = wData.sunrise.match(/T(\d{2}:\d{2})/);
+                    if (match) sunriseTime = match[1];
+                }
+                // 计算出发时间
+                let departTime = null;
+                if (sunriseTime && block.sunriseLeadTime) {
+                    const [h, m] = sunriseTime.split(':').map(Number);
+                    const totalMin = h * 60 + m - block.sunriseLeadTime;
+                    const dh = Math.floor(totalMin / 60);
+                    const dm = totalMin % 60;
+                    departTime = `${String(dh).padStart(2, '0')}:${String(dm).padStart(2, '0')}`;
+                }
+                sunriseInfo = { sunriseTime, departTime };
+            }
             if (block.desc && block.desc.includes('竹筏')) keyNodes.push({ icon: '🎋', label: '竹筏', time: block.time });
             if (block.note && block.note.includes('日落')) keyNodes.push({ icon: '🌇', label: '日落', time: block.time });
         });
         let overviewHtml = '<div class="day-overview">';
-        if (firstTime) {
+        // 第一行：出发时间 + 天气
+        overviewHtml += '<div class="day-overview-line">';
+        if (sunriseInfo && sunriseInfo.departTime) {
+            overviewHtml += `<span class="overview-time">⏰ ${sunriseInfo.departTime} 出发</span>`;
+        } else if (firstTime) {
             overviewHtml += `<span class="overview-time">⏰ ${firstTime} 出发</span>`;
         }
-        // 天气占位（动态填充）
         overviewHtml += `<span class="overview-weather" id="overview-weather-${idx}"></span>`;
-        // 关键节点
+        overviewHtml += '</div>';
+        // 第二行：日出时间 + 关键节点 + 景点数 + 步行距离 + 总时长
+        overviewHtml += '<div class="day-overview-line">';
+        if (sunriseInfo && sunriseInfo.sunriseTime) {
+            overviewHtml += `<span class="overview-key-node">🌅 ${sunriseInfo.sunriseTime} 日出</span>`;
+        }
         keyNodes.slice(0, 2).forEach(n => {
             overviewHtml += `<span class="overview-key-node">${n.icon} ${n.time}</span>`;
         });
@@ -294,6 +584,7 @@ function buildDailyCards() {
         if (day.totalDuration) {
             overviewHtml += `<span class="overview-duration">⏱ ${day.totalDuration}</span>`;
         }
+        overviewHtml += '</div>';
         overviewHtml += '</div>';
 
         // === 时间块（L1 摘要 + L2 详情）===
@@ -347,6 +638,9 @@ function buildDailyCards() {
                 detailHtml += `<div class="rain-plan"><i class="fas fa-cloud-rain"></i><span><strong>雨天备选：</strong>${block.rainPlan}</span></div>`;
             }
 
+            // 真实评价
+            detailHtml += buildRealReviewHtml(block);
+
             // 组装时间块
             const weatherBadge = buildBlockWeatherBadge(wData);
             const transportSummary = block.transport ? getTransportSummary(block.transport) : null;
@@ -374,6 +668,13 @@ function buildDailyCards() {
         // === 次日预告 ===
         const nextDayHtml = buildNextDayPreview(idx);
 
+        // === 住宿信息 ===
+        const accommodationHtml = buildAccommodationHtml(day);
+
+        // === 高德地图路线按钮 ===
+        const routeUrl = buildAmapRouteUrl(day);
+        const routeBtnHtml = routeUrl ? `<div class="route-btn-block"><a href="${routeUrl}" target="_blank" rel="noopener" class="route-btn"><i class="fas fa-route"></i> 查看当日路线</a></div>` : '';
+
         // === 组装Day Card ===
         const intensityLabels = ['', '轻松', '适中', '充实'];
         const collapseAllBtn = `<span class="collapse-all-btn" onclick="event.stopPropagation();collapseAllBlocks(${idx})" title="收起全部"><i class="fas fa-compress-alt"></i></span>`;
@@ -384,6 +685,8 @@ function buildDailyCards() {
             `</div>` +
             `<div class="day-body">` +
             overviewHtml +
+            accommodationHtml +
+            routeBtnHtml +
             dayChecklistHtml +
             blocksHtml +
             dayFoodHtml +
@@ -484,8 +787,9 @@ function buildDayFoodSection(city) {
         const descShort = getSummaryText(food.desc);
         const tagsHtml = food.tags ? food.tags.slice(0, 2).map(t => `<span class="mini-food-tag">${t}</span>`).join('') : '';
         const navHtml = food.mapUrl ? `<a href="${food.mapUrl}" target="_blank" rel="noopener" class="mini-food-nav"><i class="fas fa-location-arrow"></i> 导航</a>` : '';
+        const priceHtml = food.priceRange ? `<span class="mini-food-price">${food.priceRange}</span>` : '';
         return `<div class="day-food-mini-card">` +
-            `<div class="mini-food-name">${food.name}</div>` +
+            `<div class="mini-food-name">${food.name}${priceHtml}</div>` +
             `<div class="mini-food-desc">${descShort}</div>` +
             `<div class="mini-food-bottom">${tagsHtml}${navHtml}</div>` +
             `</div>`;
@@ -606,7 +910,8 @@ function buildFoodGrid() {
         const tagsHtml = food.tags.map(t => `<span class="food-tag">${t}</span>`).join('');
         const mapHtml = food.mapUrl ? `<a href="${food.mapUrl}" target="_blank" rel="noopener" class="food-nav-btn"><i class="fas fa-location-arrow"></i> 导航去店铺</a>` : '';
         const ratingHtml = renderStars(food.rating);
-        html += `<div class="food-card" id="food-${idx}"><div class="food-info"><div class="food-name-row"><span class="food-name">${food.name}</span>${ratingHtml}</div><div class="food-location"><i class="fas fa-map-marker-alt"></i>${food.location}</div><div class="food-desc">${food.desc}</div><div class="food-tags">${tagsHtml}</div>${mapHtml}</div></div>`;
+        const priceHtml = food.priceRange ? `<span class="food-price">${food.priceRange}</span>` : '';
+        html += `<div class="food-card" id="food-${idx}"><div class="food-info"><div class="food-name-row"><span class="food-name">${food.name}</span>${ratingHtml}${priceHtml}</div><div class="food-location"><i class="fas fa-map-marker-alt"></i>${food.location}</div><div class="food-desc">${food.desc}</div><div class="food-tags">${tagsHtml}</div>${mapHtml}</div></div>`;
     });
     container.innerHTML = html || '<div class="empty-state-text">暂无该类型美食数据</div>';
 }
@@ -730,8 +1035,81 @@ function updateOverviewWeather() {
         if (wData.precip !== null && wData.precip >= 30) {
             html += ` <span class="overview-rain-badge">💧 ${wData.precip}%</span>`;
         }
+
+        // 穿搭建议
+        const suggestion = getClothingSuggestion(wData, day.intensity);
+        if (suggestion) {
+            html += `<span class="clothing-suggestion" title="${suggestion.reason}">👕 ${suggestion.clothing}</span>`;
+        }
+
         container.innerHTML = html;
     });
+}
+
+// ========== 穿搭建议 ==========
+function getClothingSuggestion(wData, intensity) {
+    if (!wData) return null;
+
+    const tmin = wData.tmin;
+    const tmax = wData.tmax;
+    const precip = wData.precip || 0;
+    const code = wData.code;
+
+    let clothing = [];
+    let reason = [];
+
+    // 温度 → 衣物
+    if (tmin < 15) {
+        clothing.push('厚外套');
+        reason.push('早晚较冷');
+    } else if (tmin < 20) {
+        clothing.push('薄外套');
+        reason.push('早晚温差大');
+    } else if (tmax > 30) {
+        clothing.push('透气短袖');
+        reason.push('高温天气');
+    } else if (tmax > 25) {
+        clothing.push('短袖');
+        reason.push('温度适宜');
+    } else {
+        clothing.push('薄长袖');
+        reason.push('温度舒适');
+    }
+
+    // 降水 → 雨具
+    const isRainy = [51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(code);
+    if (precip >= 50 || isRainy) {
+        clothing.push('雨衣/伞');
+        reason.push('有降雨');
+    } else if (precip >= 30) {
+        clothing.push('折叠伞');
+        reason.push('可能有雨');
+    }
+
+    // 强度 → 鞋型
+    if (intensity >= 3) {
+        clothing.push('防滑运动鞋');
+        reason.push('行程充实');
+    } else if (intensity >= 2) {
+        clothing.push('运动鞋');
+        reason.push('适中强度');
+    } else {
+        clothing.push('休闲鞋');
+        reason.push('轻松行程');
+    }
+
+    // 温差大时添加薄外套建议
+    if (tmax - tmin >= 10 && tmin >= 20 && tmax <= 30) {
+        if (!clothing.includes('薄外套') && !clothing.includes('厚外套')) {
+            clothing.push('薄外套');
+            reason.push('温差较大');
+        }
+    }
+
+    return {
+        clothing: clothing.join('、'),
+        reason: reason.join('，')
+    };
 }
 
 // ========== 天气动态调整（日出/雨天） ==========
@@ -1054,6 +1432,9 @@ window.addEventListener('DOMContentLoaded', () => {
     setupScrollProgress();
     setupBottomNav();
     applyTheme(getTheme());
+    updateCountdown();
+    setInterval(updateCountdown, 60000); // 每分钟更新一次
+    scrollToToday();
     let ticking = false;
     window.addEventListener('scroll', () => {
         if (!ticking) {
