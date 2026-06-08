@@ -378,8 +378,8 @@ function buildDailyCards() {
             `</div>` +
             `<div class="day-body">` +
             overviewHtml +
-            blocksHtml +
             dayChecklistHtml +
+            blocksHtml +
             dayFoodHtml +
             nextDayHtml +
             `</div></div>`;
