@@ -1,6 +1,6 @@
 window.packingItems = [
     // 防雨
-    { name: "折叠伞（天堂/蕉下）", category: "防雨", essential: true },
+    { name: "折叠伞", category: "防雨", essential: true },
     { name: "轻便雨衣", category: "防雨", essential: true },
     { name: "防水冲锋衣/软壳", category: "防雨", essential: true },
     { name: "防滑运动鞋（纹路深的）", category: "防雨", essential: true },
