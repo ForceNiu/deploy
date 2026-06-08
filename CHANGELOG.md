@@ -90,6 +90,11 @@
 - **改动**: `intensity` 从 `1.5` 改为 `1`
 - **原因**: `intensityLabels` 数组只支持整数索引（0=无, 1=轻松, 2=适中, 3=充实），小数 `1.5` 导致 `intensityLabels[1.5]` 返回 `undefined`，显示在标题右侧
 
+### 7.14 部署平台迁移至 Cloudflare Pages
+- **原因**: Netlify 免费额度用完，Vercel 国内无法访问
+- **新地址**: https://travel-plan-3cu.pages.dev
+- **优势**: 国内有 CDN 节点，访问速度快
+
 ---
 
 ## 2026-06-06（第五轮）— 功能性优化 + 交互体验
