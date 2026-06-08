@@ -797,10 +797,16 @@ function applyWeatherDynamic() {
 
 // ========== 清单（localStorage 持久化） ==========
 function renderPackingChecklist() {
-    const categoryMap = { "防雨": { title: "🌂 防雨装备", icon: "fa-umbrella" }, "药品": { title: "💊 健康药品", icon: "fa-capsules" }, "其他": { title: "🦟 驱蚊防晒 & 其他", icon: "fa-bug" } };
+    const categoryMap = {
+        "防雨": { title: "🌂 防雨装备", icon: "fa-umbrella" },
+        "登山": { title: "🥾 登山装备", icon: "fa-hiking" },
+        "衣物": { title: "👕 衣物", icon: "fa-tshirt" },
+        "药品": { title: "💊 健康药品", icon: "fa-capsules" },
+        "其他": { title: "🦟 驱蚊防晒 & 其他", icon: "fa-bug" }
+    };
     const savedState = getChecklistState();
     let html = '';
-    for (let cat of ["防雨", "药品", "其他"]) {
+    for (let cat of ["防雨", "登山", "衣物", "药品", "其他"]) {
         const catItems = packingItems.filter(i => i.category === cat);
         if (catItems.length === 0) continue;
         html += `<div class="checklist-category"><div class="checklist-title"><i class="fas ${categoryMap[cat].icon}"></i> ${categoryMap[cat].title}</div><ul class="checklist">`;
