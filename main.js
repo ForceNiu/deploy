@@ -159,6 +159,20 @@ function getDateRange(s, e) {
     return a;
 }
 
+// 温度可视化：生成渐变色条
+function renderTempBar(tmin, tmax) {
+    if (tmin == null || tmax == null) return '';
+    const clamp = (v) => Math.min(40, Math.max(5, v));
+    const toHue = (t) => 240 - ((clamp(t) - 5) / 35) * 240;
+    const hueMin = toHue(tmin);
+    const hueMax = toHue(tmax);
+    return `<div class="temp-bar">
+        <div class="temp-bar-fill" style="background: linear-gradient(90deg, hsl(${hueMin}, 70%, 55%), hsl(${hueMax}, 70%, 55%));"></div>
+        <span class="temp-bar-label">${Math.round(tmin)}°</span>
+        <span class="temp-bar-label temp-bar-max">${Math.round(tmax)}°</span>
+    </div>`;
+}
+
 // ========== 天气渲染 ==========
 let weatherData = { wuyi: {}, lushan: {}, jiujiang: {} };
 let currentCityFilter = 'all';
@@ -214,13 +228,14 @@ function renderWeatherCards() {
                 <div class="weather-date">${date.slice(5)}</div>
                 <div class="weather-icon">${wmoToEmoji(d.code)}</div>
                 <div class="weather-city-temp" style="font-size:0.7rem;">${wmoToText(d.code)}</div>
-                <div class="temp">${Math.round(d.tmin)}~${Math.round(d.tmax)}°</div>
+                ${renderTempBar(d.tmin, d.tmax)}
                 ${d.precip !== null ? `<div class="weather-note">💧 ${d.precip}%</div>` : ''}
                 ${d.src !== 'forecast' ? `<div class="weather-src">参考</div>` : ''}
             </div>`;
         }
     }
     container.innerHTML = html;
+    observeCards();
 }
 
 async function renderWeather() {
@@ -258,6 +273,23 @@ async function renderWeather() {
         note.innerHTML = `📊 实时预报 ${fc} 条 · 历史参考 ${hc} 条 · 气候参考 ${fb} 条<br><span class="weather-update-time">⏱️ 更新于 ${timeStr}</span>`;
     } catch (e) {
         document.getElementById('weatherGrid').innerHTML = '<div class="weather-error">⚠️ 天气服务暂不可用</div>';
+    }
+}
+
+// 刷新天气
+async function refreshWeather() {
+    const btn = document.querySelector('.weather-refresh-btn');
+    if (btn.classList.contains('refreshing')) return; // 防止重复点击
+    btn.classList.add('refreshing');
+    const grid = document.getElementById('weatherGrid');
+    // 显示骨架屏
+    grid.innerHTML = Array(9).fill('<div class="skeleton skeleton-card"></div>').join('');
+    document.getElementById('weatherNote').innerHTML = '';
+    document.getElementById('weatherAlerts').innerHTML = '';
+    try {
+        await renderWeather();
+    } finally {
+        btn.classList.remove('refreshing');
     }
 }
 
@@ -342,13 +374,15 @@ function getTransportSummary(transport) {
 
 function getSummaryText(desc) {
     const plain = desc.replace(/<[^>]+>/g, '').replace(/^[⚠️✈️🍜🍽️🎭🚗]+\s*/, '').trim();
-    if (plain.length <= 40) return plain;
+    // 去掉开头的时间信息（如 "7:20"、"14:30" 等），避免与标题重复
+    const cleaned = plain.replace(/^\d{1,2}:\d{2}\s*/, '').replace(/^✅\s*已预约\d{1,2}:\d{2}\S*\s*/, '✅ ').trim();
+    if (cleaned.length <= 40) return cleaned;
     // 取第一个完整句（以。！？结尾），上限60字
-    const m = plain.match(/^(.{20,60}[。！？])/);
+    const m = cleaned.match(/^(.{20,60}[。！？])/);
     if (m) return m[1];
-    const end = plain.indexOf('。');
-    if (end > 0 && end <= 70) return plain.slice(0, end + 1);
-    return plain.slice(0, 40) + '……';
+    const end = cleaned.indexOf('。');
+    if (end > 0 && end <= 70) return cleaned.slice(0, end + 1);
+    return cleaned.slice(0, 40) + '……';
 }
 
 // ========== 真实评价解析 ==========
@@ -568,68 +602,31 @@ function buildDailyCards() {
     const container = document.getElementById('dailyCards');
     let html = '';
 
+    // 计算今天应展开哪张卡片
+    const now = new Date();
+    const startDate = new Date(TRIP_START + 'T00:00:00');
+    const endDate = new Date(TRIP_END + 'T23:59:59');
+    let todayIdx = -1;
+    if (now >= startDate && now <= endDate) {
+        todayIdx = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+    }
+
     dailyData.forEach((day, idx) => {
         const info = getCityForDay(idx);
         const dateKey = getDayDateKey(idx);
+        const isToday = idx === todayIdx;
+        const isCollapsed = !isToday;
 
         // === L0 概览层 ===
-        const firstTime = getFirstActivityTime(day.blocks);
         const blockCount = day.blocks.filter(b => b.type !== 'meal').length;
-        // 提取关键时间节点
-        const keyNodes = [];
-        let sunriseInfo = null;
-        day.blocks.forEach(block => {
-            if (block.sunriseFor) {
-                // 从 weatherData 获取真实日出时间
-                const cityKey = block.sunriseFor;
-                const wData = weatherData[cityKey] && weatherData[cityKey][dateKey];
-                let sunriseTime = null;
-                if (wData && wData.sunrise) {
-                    // 解析 ISO 8601 格式（如 "2026-06-16T05:13"）
-                    const match = wData.sunrise.match(/T(\d{2}:\d{2})/);
-                    if (match) sunriseTime = match[1];
-                }
-                // 计算出发时间
-                let departTime = null;
-                if (sunriseTime && block.sunriseLeadTime) {
-                    const [h, m] = sunriseTime.split(':').map(Number);
-                    const totalMin = h * 60 + m - block.sunriseLeadTime;
-                    const dh = Math.floor(totalMin / 60);
-                    const dm = totalMin % 60;
-                    departTime = `${String(dh).padStart(2, '0')}:${String(dm).padStart(2, '0')}`;
-                }
-                sunriseInfo = { sunriseTime, departTime };
-            }
-            if (block.desc && block.desc.includes('竹筏')) keyNodes.push({ icon: '🎋', label: '竹筏', time: block.time });
-            if (block.note && block.note.includes('日落')) keyNodes.push({ icon: '🌇', label: '日落', time: block.time });
-        });
         let overviewHtml = '<div class="day-overview">';
-        // 第一行：出发时间 + 天气
+        // 天气
         overviewHtml += '<div class="day-overview-line">';
-        if (sunriseInfo && sunriseInfo.departTime) {
-            overviewHtml += `<span class="overview-time">⏰ ${sunriseInfo.departTime} 出发</span>`;
-        } else if (firstTime) {
-            overviewHtml += `<span class="overview-time">⏰ ${firstTime} 出发</span>`;
-        }
         overviewHtml += `<span class="overview-weather" id="overview-weather-${idx}"></span>`;
         overviewHtml += '</div>';
-        // 第二行：日出时间 + 关键节点 + 景点数 + 步行距离 + 总时长
+        // 穿搭建议
         overviewHtml += '<div class="day-overview-line">';
-        if (sunriseInfo && sunriseInfo.sunriseTime) {
-            overviewHtml += `<span class="overview-key-node">🌅 ${sunriseInfo.sunriseTime} 日出</span>`;
-        }
-        keyNodes.slice(0, 2).forEach(n => {
-            overviewHtml += `<span class="overview-key-node">${n.icon} ${n.time}</span>`;
-        });
-        if (blockCount > 0) {
-            overviewHtml += `<span class="overview-stats">📍 ${blockCount}个景点</span>`;
-        }
-        if (day.walkDistance) {
-            overviewHtml += `<span class="overview-walk">🚶 ${day.walkDistance}</span>`;
-        }
-        if (day.totalDuration) {
-            overviewHtml += `<span class="overview-duration">⏱ ${day.totalDuration}</span>`;
-        }
+        overviewHtml += `<span class="clothing-suggestion" id="clothing-${idx}"></span>`;
         overviewHtml += '</div>';
         overviewHtml += '</div>';
 
@@ -725,12 +722,16 @@ function buildDailyCards() {
         const routeBtnHtml = routeUrl ? `<div class="route-btn-block"><a href="${routeUrl}" target="_blank" rel="noopener" class="route-btn"><i class="fas fa-route"></i> 查看当日路线</a></div>` : '';
 
         // === 组装Day Card ===
-        const intensityLabels = ['', '轻松', '适中', '充实'];
-        const collapseAllBtn = `<span class="collapse-all-btn" onclick="event.stopPropagation();collapseAllBlocks(${idx})" title="收起全部"><i class="fas fa-compress-alt"></i></span>`;
-        html += `<div class="day-card" id="day-${idx}">` +
+        const cardClass = `day-card touchable fade-in-up${isToday ? ' today' : ''}${isCollapsed ? ' collapsed' : ''}`;
+        const headerDate = day.date.slice(0, 5); // 去掉周几，只显示 "6/12"
+        const statsHtml = [];
+        if (blockCount > 0) statsHtml.push(`📍${blockCount}景点`);
+        if (day.walkDistance) statsHtml.push(`🚶${day.walkDistance}`);
+        const statsSpan = statsHtml.length ? `<span class="header-stats">${statsHtml.join(' · ')}</span>` : '';
+        html += `<div class="${cardClass}" id="day-${idx}">` +
             `<div class="day-header" onclick="toggleDay(${idx})">` +
-            `<div class="day-header-left"><i class="far fa-calendar-alt"></i><span>${day.date} · ${day.dayTitle}</span>${collapseAllBtn}</div>` +
-            `<div style="display:flex; align-items:center; gap:0.6rem;">${buildIntensityBar(day.intensity)}<span class="intensity-label">${intensityLabels[day.intensity]}</span><i class="fas fa-chevron-down collapse-icon"></i></div>` +
+            `<div class="day-header-left"><i class="far fa-calendar-alt"></i><span>${headerDate} · ${day.dayTitle}</span></div>` +
+            `<div style="display:flex; align-items:center; gap:0.5rem;">${statsSpan}<i class="fas fa-chevron-down collapse-icon"></i></div>` +
             `</div>` +
             `<div class="day-body">` +
             overviewHtml +
@@ -745,6 +746,7 @@ function buildDailyCards() {
     });
 
     container.innerHTML = html;
+    observeCards();
 }
 
 // ========== 强度指示器 ==========
@@ -852,7 +854,7 @@ function buildDayFoodSection(city) {
 function buildActionBtns(block) {
     let btns = '';
     if (block.transport && block.transport.includes('打车')) {
-        btns += `<span class="action-btn" onclick="copyText(this,'${block.transport.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制交通</span>`;
+        btns += `<span class="action-btn touchable" onclick="copyText(this,'${block.transport.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制交通</span>`;
     }
     return btns ? `<div class="action-btns">${btns}</div>` : '';
 }
@@ -875,7 +877,19 @@ function toggleDay(idx) {
 
 function toggleBlock(dayIdx, blockIdx) {
     const block = document.getElementById(`block-${dayIdx}-${blockIdx}`);
-    if (block) block.classList.toggle('expanded');
+    if (!block) return;
+    const detail = block.querySelector('.time-detail');
+    if (!detail) { block.classList.toggle('expanded'); return; }
+    if (block.classList.contains('expanded')) {
+        // 收起：先设固定值再归零，确保过渡动画生效
+        detail.style.maxHeight = detail.scrollHeight + 'px';
+        requestAnimationFrame(() => { detail.style.maxHeight = '0px'; });
+        block.classList.remove('expanded');
+    } else {
+        // 展开：用实际高度
+        block.classList.add('expanded');
+        detail.style.maxHeight = detail.scrollHeight + 'px';
+    }
 }
 
 function collapseAllBlocks(dayIdx) {
@@ -961,9 +975,10 @@ function buildFoodGrid() {
         const mapHtml = food.mapUrl ? `<a href="${food.mapUrl}" target="_blank" rel="noopener" class="food-nav-btn"><i class="fas fa-location-arrow"></i> 导航去店铺</a>` : '';
         const ratingHtml = renderStars(food.rating);
         const priceHtml = food.priceRange ? `<span class="food-price">${food.priceRange}</span>` : '';
-        html += `<div class="food-card" id="food-${idx}"><div class="food-info"><div class="food-name-row"><span class="food-name">${food.name}</span>${ratingHtml}${priceHtml}</div><div class="food-location"><i class="fas fa-map-marker-alt"></i>${food.location}</div><div class="food-desc">${food.desc}</div><div class="food-tags">${tagsHtml}</div>${mapHtml}</div></div>`;
+        html += `<div class="food-card touchable fade-in-up" id="food-${idx}"><div class="food-info"><div class="food-name-row"><span class="food-name">${food.name}</span>${ratingHtml}${priceHtml}</div><div class="food-location"><i class="fas fa-map-marker-alt"></i>${food.location}</div><div class="food-desc">${food.desc}</div><div class="food-tags">${tagsHtml}</div>${mapHtml}</div></div>`;
     });
     container.innerHTML = html || '<div class="empty-state-text">暂无该类型美食数据</div>';
+    observeCards();
 }
 
 document.getElementById('foodTabs').addEventListener('click', (e) => {
@@ -995,9 +1010,10 @@ function buildGiftGrid() {
         const regionClass = `gift-${gift.region}`;
         const icon = gift.region === 'wuyi' ? '🍃' : gift.region === 'lushan' ? '🏔️' : '🏙️';
         const tagsHtml = gift.tags.map(t => `<span class="gift-tag gift-tag-${t.type}">${t.text}</span>`).join('');
-        html += `<div class="gift-card"><div class="gift-header"><div class="gift-icon ${regionClass}">${icon}</div><div class="gift-name">${gift.name}</div><span class="gift-city">${gift.city}</span></div><div class="gift-desc">${gift.desc}</div><div class="gift-footer"><div>${tagsHtml}</div><div class="gift-price">${gift.price}</div></div><div class="gift-where"><i class="fas fa-store" style="margin-right:0.3rem;"></i>${gift.where}</div></div>`;
+        html += `<div class="gift-card touchable fade-in-up"><div class="gift-header"><div class="gift-icon ${regionClass}">${icon}</div><div class="gift-name">${gift.name}</div><span class="gift-city">${gift.city}</span></div><div class="gift-desc">${gift.desc}</div><div class="gift-footer"><div>${tagsHtml}</div><div class="gift-price">${gift.price}</div></div><div class="gift-where"><i class="fas fa-store" style="margin-right:0.3rem;"></i>${gift.where}</div></div>`;
     });
     container.innerHTML = html || '<div class="empty-state-text">暂无该城市伴手礼数据</div>';
+    observeCards();
 }
 
 document.getElementById('giftTabs').addEventListener('click', (e) => {
@@ -1085,14 +1101,14 @@ function updateOverviewWeather() {
         if (wData.precip !== null && wData.precip >= 30) {
             html += ` <span class="overview-rain-badge">💧 ${wData.precip}%</span>`;
         }
+        container.innerHTML = html;
 
-        // 穿搭建议
+        // 穿搭建议 — 插入独立容器
         const suggestion = getClothingSuggestion(wData, day.intensity);
         if (suggestion) {
-            html += `<span class="clothing-suggestion" title="${suggestion.reason}">👕 ${suggestion.clothing}</span>`;
+            const clothingEl = document.getElementById(`clothing-${idx}`);
+            if (clothingEl) clothingEl.innerHTML = `<span title="${suggestion.reason}">👕 ${suggestion.clothing}</span>`;
         }
-
-        container.innerHTML = html;
     });
 }
 
@@ -1355,8 +1371,8 @@ function updateBottomNav(dayIdx) {
     const info = getCityForDay(dayIdx);
     const day = dailyData[dayIdx];
 
-    document.getElementById('navDayInfo').textContent = `Day ${dayIdx + 1}/${dailyData.length} · ${day.date}`;
-    document.getElementById('navCity').textContent = info.cityName !== '转场' ? `${info.cityName} · ${day.dayTitle}` : day.dayTitle;
+    document.getElementById('navDayInfo').textContent = `Day ${dayIdx + 1} · ${day.date}`;
+    document.getElementById('navCity').textContent = '';
 
     document.getElementById('navPrev').disabled = dayIdx === 0;
     document.getElementById('navNext').disabled = dayIdx === dailyData.length - 1;
@@ -1501,8 +1517,13 @@ function getTheme() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+    const html = document.documentElement;
+    html.classList.add('transitioning');
+    requestAnimationFrame(() => {
+        html.setAttribute('data-theme', theme);
+        document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+        setTimeout(() => html.classList.remove('transitioning'), 280);
+    });
 }
 function toggleTheme() {
     const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -1511,4 +1532,42 @@ function toggleTheme() {
 }
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
     if (!localStorage.getItem('theme')) applyTheme(e.matches ? 'dark' : 'light');
+});
+
+// ========== 触控反馈（移动端） ==========
+document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('touchstart', (e) => {
+        const el = e.target.closest('.touchable');
+        if (el) el.classList.add('touching');
+    }, { passive: true });
+    document.addEventListener('touchend', () => {
+        document.querySelectorAll('.touchable.touching').forEach(el => el.classList.remove('touching'));
+    }, { passive: true });
+    document.addEventListener('touchcancel', () => {
+        document.querySelectorAll('.touchable.touching').forEach(el => el.classList.remove('touching'));
+    }, { passive: true });
+});
+
+// ========== 卡片入场动画 ==========
+const cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            cardObserver.unobserve(entry.target); // 只触发一次
+        }
+    });
+}, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+});
+
+function observeCards() {
+    document.querySelectorAll('.fade-in-up:not(.visible)').forEach(card => {
+        cardObserver.observe(card);
+    });
+}
+
+// 在内容渲染后初始化动画
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(observeCards, 100);
 });

@@ -17,6 +17,7 @@
     --green-muted-border: #b8c8ae;
     --green-text: #3d6b34;
     /* 文字 */
+    --text-primary: #1a2e1a;
     --text-heading: #1a2e1a;
     --text-body: #2a3a2a;
     --text-secondary: #3a4a3a;
@@ -138,6 +139,7 @@
     --green-muted-border: #34302A;
     --green-text: #D4A853;
     /* 文字：宣纸白 */
+    --text-primary: #D4D0C8;
     --text-heading: #D4D0C8;
     --text-body: #B8B4AC;
     --text-secondary: #9A968E;
@@ -324,7 +326,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
     font-family: 'Inter', sans-serif;
-    background: var(--bg-body);
+    background-color: var(--bg-body);
     background-image:
         linear-gradient(180deg, var(--bg-body) 0%, var(--bg-body-mid) 50%, var(--bg-body-end) 100%);
     color: var(--text-heading);
@@ -381,7 +383,7 @@ body::after {
     padding: 0.35rem 0.7rem;
     background: var(--bg-card);
     border-radius: 2rem;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: var(--green-text);
     text-decoration: none;
@@ -553,6 +555,42 @@ body::after {
 .section-title.collapsed {
     margin-bottom: 0.5rem;
 }
+
+/* 天气刷新按钮 */
+.weather-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.weather-refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    color: var(--green-medium);
+    transition: all 0.3s ease;
+}
+.weather-refresh-btn:hover {
+    background: var(--bg-card-hover);
+    color: var(--green-primary);
+}
+.weather-refresh-btn.refreshing {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.weather-refresh-btn.refreshing i {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 .section-content {
     overflow: visible;
     transition: opacity 0.3s ease;
@@ -569,10 +607,15 @@ body::after {
 .weather-tabs {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
+    flex: 1;
+    overflow-x: auto;
 }
 .weather-tab {
-    padding: 0.4rem 1rem;
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
     border-radius: 2rem;
     font-size: 0.8rem;
     font-weight: 500;
@@ -589,6 +632,7 @@ body::after {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
     gap: 0.7rem;
+    margin-top: 1rem;
     margin-bottom: 1rem;
 }
 .weather-grid.all-view {
@@ -601,7 +645,7 @@ body::after {
     text-align: center;
     border: 1px solid var(--green-border);
     box-shadow: 0 2px 8px var(--shadow-sm);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease, border-color 0.3s ease;
 }
 .weather-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px var(--shadow-card-hover); }
 .weather-card.all-mode {
@@ -610,6 +654,31 @@ body::after {
 .weather-date { font-weight: 600; color: var(--green-primary); font-size: 0.85rem; margin-bottom: 0.4rem; }
 .weather-icon { font-size: 1.2rem; margin: 0.15rem 0; }
 .temp { font-weight: 600; font-size: 0.9rem; color: var(--green-medium); }
+
+/* 温度可视化色条 */
+.temp-bar {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-card-hover);
+    margin: 0.4rem 0 0.2rem;
+    overflow: visible;
+}
+.temp-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    width: 100%;
+}
+.temp-bar-label {
+    position: absolute;
+    top: -14px;
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+.temp-bar-label:first-of-type { left: 0; }
+.temp-bar-max { right: 0; }
 .weather-note { font-size: 0.6rem; color: var(--text-dim); margin-top: 0.15rem; }
 .weather-src { font-size: 0.5rem; color: var(--text-aaa); margin-top: 0.15rem; }
 .weather-update-time {
@@ -629,7 +698,7 @@ body::after {
 }
 .weather-city-row:last-child { border-bottom: none; }
 .weather-city-name {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--weather-city-name);
     width: 40px;
     text-align: left;
@@ -675,7 +744,10 @@ body::after {
     margin-bottom: 1rem;
 }
 .food-tab, .gift-tab {
-    padding: 0.4rem 1rem;
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
     border-radius: 2rem;
     font-size: 0.8rem;
     font-weight: 500;
@@ -702,7 +774,10 @@ body::after {
     flex-wrap: wrap;
 }
 .food-type-pill {
-    padding: 0.3rem 0.8rem;
+    padding: 0.4rem 0.8rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
     border-radius: 2rem;
     font-size: 0.75rem;
     font-weight: 500;
@@ -792,7 +867,7 @@ body::after {
 }
 .food-location i { margin-right: 0.3rem; }
 .food-desc {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-body);
     line-height: 1.5;
     flex: 1;
@@ -817,6 +892,61 @@ body::after {
     border: 1px solid var(--green-border);
 }
 
+/* ========== 卡片入场动画 ========== */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+/* Stagger 延迟（可选） */
+.fade-in-up:nth-child(1) { transition-delay: 0s; }
+.fade-in-up:nth-child(2) { transition-delay: 0.05s; }
+.fade-in-up:nth-child(3) { transition-delay: 0.1s; }
+.fade-in-up:nth-child(4) { transition-delay: 0.15s; }
+.fade-in-up:nth-child(5) { transition-delay: 0.2s; }
+.fade-in-up:nth-child(6) { transition-delay: 0.25s; }
+.fade-in-up:nth-child(7) { transition-delay: 0.3s; }
+.fade-in-up:nth-child(8) { transition-delay: 0.35s; }
+.fade-in-up:nth-child(9) { transition-delay: 0.4s; }
+
+/* ========== 深色模式过渡 ========== */
+html.transitioning,
+html.transitioning body,
+html.transitioning .day-card,
+html.transitioning .food-card,
+html.transitioning .gift-card,
+html.transitioning .weather-card,
+html.transitioning .section-title,
+html.transitioning .section-content,
+html.transitioning .bottom-date-nav,
+html.transitioning .back-to-top,
+html.transitioning .quick-nav,
+html.transitioning .hero,
+html.transitioning header,
+html.transitioning footer {
+    transition: background-color 0.25s ease-out, color 0.25s ease-out, border-color 0.25s ease-out !important;
+    will-change: background-color, color, border-color;
+}
+
+/* ========== 触控反馈 ========== */
+.touchable {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+.touchable:active,
+.touchable.touching {
+    opacity: 0.7;
+    transition: opacity 0.1s ease;
+}
+.touchable:not(:active):not(.touching) {
+    transition: opacity 0.2s ease;
+}
+
 /* ========== 每日卡片 ========== */
 .day-card {
     background: var(--bg-card);
@@ -838,7 +968,7 @@ body::after {
 }
 .day-card.today .day-header::after {
     content: "📍 今天";
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--accent-orange);
     font-weight: 600;
     background: var(--bg-white);
@@ -873,9 +1003,8 @@ body::after {
     overflow: hidden;
 }
 .day-header-left > span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
 }
 .day-header .collapse-icon {
     font-size: 0.75rem;
@@ -883,6 +1012,12 @@ body::after {
     transition: transform 0.3s ease;
 }
 .day-card.collapsed .collapse-icon { transform: rotate(-90deg); }
+.header-stats {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
 .collapse-all-btn {
     display: inline-flex;
     align-items: center;
@@ -929,9 +1064,13 @@ body::after {
     padding: 0.6rem 0.8rem 0.6rem 1rem;
     border: 1px solid var(--bg-card-hover);
     border-left: 3px solid var(--green-medium);
-    transition: box-shadow 0.2s;
+    transition: box-shadow 0.2s, border-color 0.2s;
 }
 .time-block:hover { box-shadow: 0 2px 10px var(--shadow-card-hover-sm); }
+.time-block.expanded {
+    border-color: var(--green-border);
+    box-shadow: 0 2px 12px var(--shadow-card);
+}
 .time-block.meal-block {
     border-left-color: var(--accent-orange);
     background: linear-gradient(135deg, var(--bg-meal), var(--bg-meal-end));
@@ -959,9 +1098,9 @@ body::after {
     gap: 0.3rem;
     flex-wrap: wrap;
 }
-.time-desc { font-size: 0.88rem; color: var(--text-body); line-height: 1.6; }
+.time-desc { font-size: 0.9rem; color: var(--text-body); line-height: 1.6; padding-top: 0.2rem; }
 .time-duration {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--green-medium);
     background: var(--bg-stats);
     padding: 0.1rem 0.45rem;
@@ -979,7 +1118,7 @@ body::after {
     border-radius: 0.5rem;
     padding: 0.3rem 0.7rem;
     margin-top: 0.5rem;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--text-meal);
     display: inline-block;
     border: 1px solid var(--border-meal);
@@ -990,7 +1129,7 @@ body::after {
     padding: 0.4rem 0.7rem;
     border-radius: 0.5rem;
     margin-top: 0.5rem;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--text-meal-deep);
     border-left: 3px solid var(--accent-orange);
 }
@@ -1059,7 +1198,7 @@ body::after {
     display: inline-block;
     background: var(--bg-sunrise);
     color: var(--accent-orange-deep);
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 600;
     padding: 0.2rem 0.6rem;
     border-radius: 0.5rem;
@@ -1071,7 +1210,7 @@ body::after {
     border-radius: 0.5rem;
     padding: 0.4rem 0.7rem;
     margin-top: 0.5rem;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--text-transport);
     border-left: 3px solid var(--accent-purple);
 }
@@ -1191,7 +1330,7 @@ body::after {
     margin-left: auto;
 }
 .gift-desc {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-body);
     line-height: 1.5;
     flex: 1;
@@ -1210,7 +1349,7 @@ body::after {
     font-weight: 600;
 }
 .gift-where {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
 }
 .gift-tag {
@@ -1245,7 +1384,7 @@ body::after {
 }
 .price-table td {
     padding: 0.6rem 1rem;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-secondary);
     border-bottom: 1px solid var(--bg-card-hover);
 }
@@ -1270,7 +1409,7 @@ body::after {
     color: var(--text-secondary);
 }
 .price-channel {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--green-medium);
     background: var(--bg-stats);
     padding: 0.1rem 0.4rem;
@@ -1293,7 +1432,7 @@ body::after {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-meal-deep);
     animation: alertPulse 2s infinite;
 }
@@ -1313,7 +1452,7 @@ body::after {
     color: var(--text-meal-deep);
 }
 .weather-forecast-note {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--text-aaa);
     text-align: center;
     margin-top: 0.4rem;
@@ -1397,7 +1536,7 @@ body::after {
 /* ========== 展开按钮提示 ========== */
 .expand-hint {
     margin-left: auto;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: var(--text-faint);
     flex-shrink: 0;
     display: inline-flex;
@@ -1407,6 +1546,8 @@ body::after {
 .expand-hint .collapse-hint-text { display: none; }
 .time-block.expanded .expand-hint {
     color: var(--green-medium);
+    margin-left: 0;
+    font-weight: 500;
 }
 .time-block.expanded .expand-hint .expand-hint-text { display: none; }
 .time-block.expanded .expand-hint .collapse-hint-text { display: inline; }
@@ -1437,7 +1578,7 @@ body::after {
 .day-food-mini-card:hover { border-color: var(--accent-orange); transform: translateY(-1px); }
 .mini-food-name {
     font-weight: 700;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-heading);
     margin-bottom: 0.2rem;
     white-space: nowrap;
@@ -1454,7 +1595,7 @@ body::after {
     flex-shrink: 0;
 }
 .mini-food-desc {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     line-height: 1.4;
     display: -webkit-box;
@@ -1559,7 +1700,7 @@ body::after {
 .day-overview .overview-rain-badge {
     background: var(--bg-rain-badge);
     color: var(--accent-blue);
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     padding: 0.1rem 0.4rem;
     border-radius: 0.8rem;
     font-weight: 500;
@@ -1568,7 +1709,7 @@ body::after {
 .day-overview .clothing-suggestion {
     background: var(--bg-meal);
     color: var(--accent-orange);
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     padding: 0.1rem 0.4rem;
     border-radius: 0.8rem;
     font-weight: 500;
@@ -1578,14 +1719,14 @@ body::after {
 .day-overview .overview-ticket-badge {
     background: var(--bg-ticket);
     color: var(--accent-purple);
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     padding: 0.1rem 0.4rem;
     border-radius: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
 }
 .day-overview .overview-stats {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: var(--green-medium);
     padding: 0.1rem 0.4rem;
     background: var(--bg-stats);
@@ -1594,7 +1735,7 @@ body::after {
 }
 .day-overview .overview-walk,
 .day-overview .overview-duration {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: var(--text-walk);
     padding: 0.1rem 0.4rem;
     background: var(--bg-walk-duration);
@@ -1602,7 +1743,7 @@ body::after {
     white-space: nowrap;
 }
 .day-overview .overview-key-node {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: var(--accent-orange);
     padding: 0.1rem 0.4rem;
     background: var(--bg-meal);
@@ -1647,7 +1788,7 @@ body::after {
 .accommodation-detail {
     margin-top: 0.3rem;
     padding-left: 1.5rem;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--text-secondary);
     line-height: 1.5;
 }
@@ -1671,7 +1812,7 @@ body::after {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: var(--accent-blue);
 }
@@ -1702,12 +1843,12 @@ body::after {
     border-bottom: none;
 }
 .rain-card-time {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     margin-bottom: 0.2rem;
 }
 .rain-card-title {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 0.2rem;
@@ -1784,7 +1925,7 @@ body::after {
 
 /* ========== L1 摘要层 & L2 详情层 ========== */
 .time-block .time-summary {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
     cursor: pointer;
     padding: 0.2rem 0;
@@ -1803,24 +1944,42 @@ body::after {
 }
 .time-block.expanded .time-summary .expand-icon { transform: rotate(180deg); }
 .time-block.expanded .time-summary {
-    border-top: 1px solid var(--green-border);
-    background: var(--bg-stats);
-    border-radius: 0 0 0.4rem 0.4rem;
-    padding: 0.35rem 0.7rem;
-    margin-top: 0.3rem;
-    min-height: 2.5rem;
+    margin-top: 0.5rem;
+    padding: 0.35rem 0;
+    border-top: 1px dashed var(--green-border);
+    justify-content: center;
 }
 .time-block.expanded .time-summary > span:not(.expand-hint) { display: none; }
+.time-block.expanded .time-summary .expand-icon {
+    color: var(--green-medium);
+    font-size: 0.65rem;
+}
+.time-block.expanded .expand-hint {
+    margin-left: 0;
+    background: var(--green-light);
+    color: var(--green-primary);
+    padding: 0.25rem 0.8rem;
+    border-radius: 1rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    order: -1;
+}
 .time-block .time-detail {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: opacity 0.25s ease, padding 0.25s ease;
+    transform: translateY(-8px);
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, transform 0.3s ease;
 }
 .time-block.expanded .time-detail {
     max-height: none;
     opacity: 1;
-    padding-top: 0.3rem;
+    transform: translateY(0);
+    padding: 0.6rem 0 0.3rem;
+    margin-top: 0.5rem;
+    border-top: 2px solid var(--green-light);
+    background: linear-gradient(180deg, rgba(232, 239, 226, 0.3) 0%, transparent 100%);
+    border-radius: 0.4rem;
 }
 
 /* ========== 次日预告 ========== */
@@ -1830,7 +1989,7 @@ body::after {
     background: linear-gradient(135deg, var(--bg-preview), var(--bg-preview-end));
     border-radius: 0.6rem;
     border: 1px solid var(--border-preview);
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--text-transport);
     cursor: pointer;
     transition: all 0.2s;
@@ -1846,7 +2005,7 @@ body::after {
 }
 .next-day-preview .preview-header i { color: var(--accent-purple-deep); font-size: 0.7rem; }
 .next-day-preview .preview-detail {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--text-transport);
 }
 .next-day-preview .preview-ticket {
@@ -1869,7 +2028,7 @@ body::after {
     border-top: 1px dashed var(--green-border);
 }
 .day-food-section .section-label {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--accent-brown);
     margin-bottom: 0.5rem;
@@ -1888,7 +2047,7 @@ body::after {
     border: 1px solid var(--bg-card-hover);
 }
 .day-checklist .checklist-label {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--green-primary);
     margin-bottom: 0.4rem;
@@ -1959,7 +2118,7 @@ body::after {
     min-width: 0;
 }
 .bottom-date-nav .nav-day-info {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-heading);
     white-space: nowrap;
@@ -1971,19 +2130,19 @@ body::after {
     color: var(--green-medium);
 }
 .bottom-date-nav .nav-today-btn {
-    font-size: 0.7rem;
-    color: var(--accent-orange);
-    font-weight: 600;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 500;
     cursor: pointer;
-    padding: 0.2rem 0.5rem;
-    border-radius: 1rem;
-    border: 1px solid var(--border-today);
-    background: var(--bg-white);
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.5rem;
+    border: none;
+    background: transparent;
     white-space: nowrap;
     transition: all 0.2s;
     flex-shrink: 0;
 }
-.bottom-date-nav .nav-today-btn:hover { background: var(--bg-meal); border-color: var(--accent-orange); }
+.bottom-date-nav .nav-today-btn:hover { background: var(--bg-card-hover); color: var(--green-primary); }
 
 /* ========== 行动按钮（地址复制/拨号/导航） ========== */
 .action-btns {
@@ -1996,9 +2155,10 @@ body::after {
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
-    padding: 0.2rem 0.5rem;
+    padding: 0.4rem 0.7rem;
+    min-height: 44px;
     border-radius: 0.5rem;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 500;
     text-decoration: none;
     border: 1px solid var(--green-border);
@@ -2025,7 +2185,7 @@ body::after {
 }
 .expand-text-btn {
     display: inline-block;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--green-medium);
     cursor: pointer;
     margin-top: 0.2rem;
@@ -2083,7 +2243,9 @@ footer {
 
 /* ========== 回到顶部 ========== */
 .back-to-top {
-    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    position: fixed;
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    right: calc(1.5rem + env(safe-area-inset-right, 0px));
     background: var(--green-primary); color: white;
     width: 2.8rem; height: 2.8rem; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -2097,7 +2259,7 @@ footer {
 /* ========== 快捷导航 ========== */
 .quick-nav {
     position: fixed;
-    right: 1.5rem;
+    right: calc(1.5rem + env(safe-area-inset-right, 0px));
     top: 50%;
     transform: translateY(-50%);
     z-index: 98;
@@ -2171,7 +2333,7 @@ footer {
     }
 
     /* 导航栏 — 紧凑滚动 */
-    .nav-link { padding: 0.25rem 0.5rem; font-size: 0.68rem; gap: 0.2rem; }
+    .nav-link { padding: 0.25rem 0.5rem; font-size: 0.7rem; gap: 0.2rem; }
     .nav-link .city-dot { width: 5px; height: 5px; }
     .sticky-nav { padding: 0.4rem 0; }
 
@@ -2187,8 +2349,9 @@ footer {
     .food-tabs::-webkit-scrollbar,
     .gift-tabs::-webkit-scrollbar { display: none; }
     .weather-tab, .food-tab, .gift-tab {
-        padding: 0.3rem 0.7rem;
-        font-size: 0.72rem;
+        padding: 0.4rem 0.7rem;
+        min-height: 44px;
+        font-size: 0.7rem;
         flex-shrink: 0;
     }
     .tab-count { min-width: 1rem; height: 1rem; font-size: 0.6rem; }
@@ -2198,7 +2361,8 @@ footer {
         gap: 0.3rem;
     }
     .food-type-pill {
-        padding: 0.25rem 0.6rem;
+        padding: 0.35rem 0.6rem;
+        min-height: 44px;
         font-size: 0.7rem;
     }
 
@@ -2223,7 +2387,7 @@ footer {
         gap: 0.3rem;
     }
     .day-header-left { gap: 0.4rem; }
-    .day-header-left > span { font-size: 0.82rem; }
+    .day-header-left > span { font-size: 0.8rem; }
     .day-body { padding: 0.65rem 0.75rem; }
     .intensity-dot { width: 6px; height: 6px; }
     .intensity-label { font-size: 0.6rem; margin-left: 0.25rem; }
@@ -2239,18 +2403,18 @@ footer {
         margin-left: -0.2rem;
     }
     .time-title-row { gap: 0.25rem; }
-    .time-title { font-size: 0.88rem; }
-    .time-desc { font-size: 0.82rem; line-height: 1.55; }
-    .meal-rec { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
-    .attention-note { font-size: 0.72rem; padding: 0.35rem 0.6rem; }
-    .transport-info { font-size: 0.72rem; padding: 0.35rem 0.6rem; }
-    .rain-plan { font-size: 0.72rem; padding: 0.4rem 0.6rem; gap: 0.4rem; }
+    .time-title { font-size: 0.9rem; }
+    .time-desc { font-size: 0.8rem; line-height: 1.55; }
+    .meal-rec { font-size: 0.7rem; padding: 0.25rem 0.6rem; }
+    .attention-note { font-size: 0.7rem; padding: 0.35rem 0.6rem; }
+    .transport-info { font-size: 0.7rem; padding: 0.35rem 0.6rem; }
+    .rain-plan { font-size: 0.7rem; padding: 0.4rem 0.6rem; gap: 0.4rem; }
     .time-duration { font-size: 0.65rem; padding: 0.08rem 0.4rem; }
 
     /* 提示分组 */
     .tips-group { padding: 0.4rem 0.6rem; }
     .tips-group-title { font-size: 0.7rem; }
-    .tips-list li { font-size: 0.72rem; }
+    .tips-list li { font-size: 0.7rem; }
     .sunrise-time-tag { font-size: 0.75rem; padding: 0.15rem 0.5rem; }
 
     /* 购票提醒 */
@@ -2260,7 +2424,7 @@ footer {
         margin-bottom: 0.5rem;
     }
     .ticket-label { font-size: 0.65rem; padding: 0.15rem 0.6rem; }
-    .ticket-desc { font-size: 0.78rem; }
+    .ticket-desc { font-size: 0.8rem; }
 
     /* 美食卡片 */
     .food-grid {
@@ -2270,7 +2434,7 @@ footer {
     .food-info { padding: 0.6rem 0.8rem; }
     .food-name { font-size: 0.9rem; }
     .food-location { font-size: 0.7rem; margin-bottom: 0.25rem; }
-    .food-desc { font-size: 0.78rem; line-height: 1.45; }
+    .food-desc { font-size: 0.8rem; line-height: 1.45; }
     .food-tag { font-size: 0.6rem; padding: 0.1rem 0.4rem; }
     .food-nav-btn { font-size: 0.7rem; padding: 0.25rem 0.6rem; margin-top: 0.4rem; }
     .food-rating { font-size: 0.65rem; }
@@ -2285,9 +2449,9 @@ footer {
     .gift-icon { width: 1.6rem; height: 1.6rem; font-size: 0.85rem; }
     .gift-name { font-size: 0.85rem; }
     .gift-city { font-size: 0.6rem; }
-    .gift-desc { font-size: 0.78rem; line-height: 1.45; }
+    .gift-desc { font-size: 0.8rem; line-height: 1.45; }
     .gift-footer { margin-top: 0.5rem; padding-top: 0.4rem; }
-    .gift-price { font-size: 0.72rem; }
+    .gift-price { font-size: 0.7rem; }
     .gift-where { font-size: 0.65rem; }
     .gift-tag { font-size: 0.55rem; }
 
@@ -2308,7 +2472,7 @@ footer {
     }
     .price-table td {
         padding: 0.15rem 0;
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         border: none;
         display: flex;
         align-items: center;
@@ -2320,7 +2484,7 @@ footer {
     }
     .price-table td:nth-child(2) { margin-left: auto; }
     .price-table td:nth-child(3) {
-        font-size: 0.68rem;
+        font-size: 0.7rem;
         color: var(--text-dim);
         width: 100%;
         justify-content: flex-start;
@@ -2347,8 +2511,8 @@ footer {
 
     /* 回到顶部 */
     .back-to-top {
-        bottom: 3.5rem;
-        right: 1rem;
+        bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+        right: calc(1rem + env(safe-area-inset-right, 0px));
         width: 2.4rem;
         height: 2.4rem;
     }
@@ -2360,10 +2524,10 @@ footer {
     .day-overview {
         padding: 0.45rem 0.6rem;
         gap: 0.4rem;
-        font-size: 0.72rem;
+        font-size: 0.7rem;
     }
     .day-overview .overview-weather {
-        font-size: 0.68rem;
+        font-size: 0.7rem;
         padding: 0.1rem 0.4rem;
     }
     .day-overview .overview-rain-badge,
@@ -2378,7 +2542,7 @@ footer {
 
     /* L1/L2 时间块 */
     .time-block .time-summary {
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         min-height: 2.2rem;
         padding: 0.25rem 0;
     }
@@ -2386,7 +2550,7 @@ footer {
     /* 次日预告 */
     .next-day-preview {
         padding: 0.5rem 0.6rem;
-        font-size: 0.72rem;
+        font-size: 0.7rem;
     }
 
     /* 今日美食推荐 — 移动端单列垂直布局 */
@@ -2401,7 +2565,7 @@ footer {
         flex-shrink: 0;
         padding: 0.5rem 0.6rem;
     }
-    .mini-food-name { font-size: 0.78rem; }
+    .mini-food-name { font-size: 0.8rem; }
     .mini-food-desc { font-size: 0.65rem; }
 
     /* 今日Checklist */
@@ -2409,10 +2573,10 @@ footer {
     .day-checklist .check-item { font-size: 0.65rem; }
 
     /* 行动按钮 */
-    .action-btn { font-size: 0.62rem; padding: 0.15rem 0.4rem; }
+    .action-btn { font-size: 0.6rem; padding: 0.15rem 0.4rem; }
 
     /* 长文截断 */
-    .expand-text-btn { font-size: 0.68rem; }
+    .expand-text-btn { font-size: 0.7rem; }
 
     /* Hero 紧凑模式 */
     .hero-compact {
