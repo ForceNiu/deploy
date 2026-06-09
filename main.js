@@ -282,9 +282,9 @@ async function refreshWeather() {
     if (btn.classList.contains('refreshing')) return; // 防止重复点击
     btn.classList.add('refreshing');
     const grid = document.getElementById('weatherGrid');
-    // 显示骨架屏
+    // 显示骨架屏 + loading 提示
     grid.innerHTML = Array(9).fill('<div class="skeleton skeleton-card"></div>').join('');
-    document.getElementById('weatherNote').innerHTML = '';
+    document.getElementById('weatherNote').innerHTML = '<span class="weather-loading-text"><i class="fas fa-spinner fa-spin"></i> 正在获取最新天气数据...</span>';
     document.getElementById('weatherAlerts').innerHTML = '';
     try {
         await renderWeather();
@@ -872,7 +872,13 @@ function copyText(el, text) {
 
 // ========== 交互函数 ==========
 function toggleDay(idx) {
-    document.getElementById(`day-${idx}`).classList.toggle('collapsed');
+    const card = document.getElementById(`day-${idx}`);
+    card.classList.toggle('collapsed');
+    const isCollapsed = card.classList.contains('collapsed');
+    const header = card.querySelector('.day-header');
+    const body = card.querySelector('.day-body');
+    if (header) header.setAttribute('aria-expanded', !isCollapsed);
+    if (body) body.setAttribute('aria-hidden', isCollapsed);
 }
 
 function toggleBlock(dayIdx, blockIdx) {
@@ -906,11 +912,54 @@ function toggleClamp(dayIdx, blockIdx) {
     if (btn) btn.textContent = clamp.classList.contains('expanded') ? '收起' : '展开全文';
 }
 
+// ========== 折叠无障碍 ==========
+function setupSectionAccessibility() {
+    // Section 折叠
+    document.querySelectorAll('.section-title').forEach(title => {
+        const content = title.nextElementSibling;
+        if (content && content.classList.contains('section-content')) {
+            const isCollapsed = content.classList.contains('collapsed');
+            title.setAttribute('role', 'button');
+            title.setAttribute('tabindex', '0');
+            title.setAttribute('aria-expanded', !isCollapsed);
+            content.setAttribute('aria-hidden', isCollapsed);
+            title.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleSection(title);
+                }
+            });
+        }
+    });
+    // Day Card 折叠
+    document.querySelectorAll('.day-card').forEach(card => {
+        const isCollapsed = card.classList.contains('collapsed');
+        const header = card.querySelector('.day-header');
+        const body = card.querySelector('.day-body');
+        if (header) {
+            header.setAttribute('role', 'button');
+            header.setAttribute('tabindex', '0');
+            header.setAttribute('aria-expanded', !isCollapsed);
+            header.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const idx = card.id.replace('day-', '');
+                    toggleDay(idx);
+                }
+            });
+        }
+        if (body) body.setAttribute('aria-hidden', isCollapsed);
+    });
+}
+
 function toggleSection(titleEl) {
     titleEl.classList.toggle('collapsed');
     const content = titleEl.nextElementSibling;
     if (content && content.classList.contains('section-content')) {
         content.classList.toggle('collapsed');
+        const isCollapsed = content.classList.contains('collapsed');
+        titleEl.setAttribute('aria-expanded', !isCollapsed);
+        content.setAttribute('aria-hidden', isCollapsed);
     }
 }
 
@@ -1381,7 +1430,7 @@ function updateBottomNav(dayIdx) {
 function setupBottomNav() {
     const prevBtn = document.getElementById('navPrev');
     const nextBtn = document.getElementById('navNext');
-    const todayBtn = document.getElementById('navTodayBtn');
+    const topBtn = document.getElementById('navTopBtn');
     const bottomNav = document.getElementById('bottomDateNav');
 
     prevBtn.addEventListener('click', () => {
@@ -1396,12 +1445,14 @@ function setupBottomNav() {
         }
     });
 
-    todayBtn.addEventListener('click', () => {
-        const todayCard = document.querySelector('.day-card.today');
-        if (todayCard) todayCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // 回顶部按钮 — 滚动超过 300px 后显示
+    topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) topBtn.classList.add('visible');
+        else topBtn.classList.remove('visible');
     });
 
-    // 滚动到 footer 区域时隐藏底部浮窗
+    // 滚动到 footer 区域时隐藏底部操作栏
     const footerEl = document.querySelector('footer');
     if (footerEl && bottomNav) {
         window.addEventListener('scroll', () => {
@@ -1418,14 +1469,49 @@ function setupBottomNav() {
     updateBottomNav(0);
 }
 
-// ========== 回到顶部 ==========
-function setupBackToTop() {
-    const btn = document.getElementById('backToTop');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) btn.classList.add('visible');
-        else btn.classList.remove('visible');
-    });
-    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+// ========== 移动端滑动切换日期 ==========
+function setupSwipeGesture() {
+    const container = document.getElementById('dailyCards');
+    if (!container) return;
+
+    let startX = 0, startY = 0, startTime = 0;
+    let swiping = false;
+
+    container.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        startTime = Date.now();
+        swiping = false;
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+        if (swiping) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        // 水平滑动距离大于垂直距离 1.5 倍时判定为横滑
+        if (Math.abs(dx) > Math.abs(dy) * 1.5 && Math.abs(dx) > 20) {
+            swiping = true;
+        }
+    }, { passive: true });
+
+    container.addEventListener('touchend', (e) => {
+        if (!swiping) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        const elapsed = Date.now() - startTime;
+        // 滑动距离 > 50px 且在 500ms 内完成
+        if (Math.abs(dx) > 50 && elapsed < 500) {
+            if (dx < 0 && currentVisibleDay < dailyData.length - 1) {
+                // 左滑 → 下一天
+                document.getElementById(`day-${currentVisibleDay + 1}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (dx > 0 && currentVisibleDay > 0) {
+                // 右滑 → 上一天
+                document.getElementById(`day-${currentVisibleDay - 1}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        swiping = false;
+    }, { passive: true });
 }
 
 // ========== 滚动进度条 ==========
@@ -1493,10 +1579,12 @@ window.addEventListener('DOMContentLoaded', () => {
     renderPackingChecklist();
     updateTabCounts();
     highlightToday();
+    setupSectionAccessibility();
+    document.getElementById('weatherNote').innerHTML = '<span class="weather-loading-text"><i class="fas fa-spinner fa-spin"></i> 正在获取天气数据，预计 3-5 秒...</span>';
     renderWeather().then(() => { checkWeatherAlerts(); applyWeatherDynamic(); updateOverviewWeather(); });
-    setupBackToTop();
     setupScrollProgress();
     setupBottomNav();
+    setupSwipeGesture();
     applyTheme(getTheme());
     updateCountdown();
     setInterval(updateCountdown, 60000); // 每分钟更新一次
