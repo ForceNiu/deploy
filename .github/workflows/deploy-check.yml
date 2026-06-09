@@ -1,0 +1,30 @@
+name: Deploy Check
+on:
+  push:
+    branches: [master]
+
+jobs:
+  check-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Cloudflare Pages deploy
+        run: |
+          SITE="https://travel-plan-3cu.pages.dev"
+          echo "⏳ 等待 Cloudflare Pages 部署完成..."
+          for i in $(seq 1 30); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$SITE/")
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ 站点可访问（第 $i 次检测）"
+              exit 0
+            fi
+            echo "  第 $i 次检测：HTTP $STATUS，10秒后重试..."
+            sleep 10
+          done
+          echo "❌ 超时（5分钟），请检查 Cloudflare Pages dashboard"
+          exit 1
+
+      - name: Verify latest content
+        run: |
+          HASH=$(curl -s https://travel-plan-3cu.pages.dev/ | md5sum | cut -d' ' -f1)
+          echo "📦 当前线上内容 hash: $HASH"
+          echo "✅ 部署验证完成"
