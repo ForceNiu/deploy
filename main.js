@@ -123,7 +123,7 @@ window.addEventListener('DOMContentLoaded', function() {
         highlightToday();
         setupSectionAccessibility();
         document.getElementById('weatherNote').innerHTML = '<span class="weather-loading-text"><i class="fas fa-spinner fa-spin"></i> 正在获取天气数据，预计 3-5 秒...</span>';
-        renderWeather().then(function() { checkWeatherAlerts(); applyWeatherDynamic(); updateOverviewWeather(); });
+        renderWeather().then(function() { checkWeatherAlerts(); applyWeatherDynamic(); updateOverviewWeather(); updateHeroWeatherSummary(); });
         setupScrollProgress();
         setupBottomNav();
         setupSwipeGesture();

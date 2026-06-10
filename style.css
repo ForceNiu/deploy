@@ -481,6 +481,41 @@ body::after {
 }
 .hero p { font-size: 1rem; color: var(--text-muted); margin-top: 0.4rem; font-weight: 400; letter-spacing: 1px; position: relative; }
 
+/* ========== Hero 天气摘要条 ========== */
+.hero-weather-summary {
+    display: none;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-top: 1rem;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    position: relative;
+}
+.hero-weather-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.hero-weather-city {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+.hero-weather-detail {
+    color: var(--text-body);
+}
+[data-theme="dark"] .hero-weather-summary {
+    background: rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] .hero-weather-city {
+    color: var(--text-faint);
+}
+[data-theme="dark"] .hero-weather-detail {
+    color: var(--text-secondary);
+}
+
 /* ========== 出发倒计时 ========== */
 .countdown {
     display: flex;

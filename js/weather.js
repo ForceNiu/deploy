@@ -355,6 +355,55 @@
         });
     }
 
+    // ========== Hero 天气摘要条 ==========
+    function updateHeroWeatherSummary() {
+        var container = document.getElementById('heroWeatherSummary');
+        if (!container) return;
+
+        var today = new Date().toISOString().slice(0, 10);
+        var cities = [
+            { key: 'wuyi', name: '武夷山', emoji: '⛰️' },
+            { key: 'lushan', name: '庐山', emoji: '🏔️' },
+            { key: 'jiujiang', name: '九江', emoji: '🏙️' }
+        ];
+
+        var html = '';
+        var hasData = false;
+
+        cities.forEach(function(city) {
+            var data = TravelApp.weather.data[city.key];
+            if (!data) return;
+
+            // 找最近的天气数据
+            var weatherInfo = null;
+            var dates = Object.keys(data).sort();
+            for (var i = 0; i < dates.length; i++) {
+                if (dates[i] >= today) {
+                    weatherInfo = data[dates[i]];
+                    break;
+                }
+            }
+            if (!weatherInfo && dates.length > 0) {
+                weatherInfo = data[dates[dates.length - 1]];
+            }
+
+            if (weatherInfo) {
+                hasData = true;
+                var emoji = wmoToEmoji(weatherInfo.code);
+                var temp = weatherInfo.tmin + '~' + weatherInfo.tmax + '°C';
+                html += '<span class="hero-weather-item">' +
+                    '<span class="hero-weather-city">' + city.emoji + ' ' + city.name + '</span>' +
+                    '<span class="hero-weather-detail">' + emoji + ' ' + temp + '</span>' +
+                    '</span>';
+            }
+        });
+
+        if (hasData) {
+            container.innerHTML = html;
+            container.style.display = 'flex';
+        }
+    }
+
     // ========== 天气 Tab 切换 ==========
     document.getElementById('weatherTabs').addEventListener('click', function(e) {
         var tab = e.target.closest('.weather-tab');
@@ -374,6 +423,7 @@
     window.TravelApp.weather.applyDynamic = applyWeatherDynamic;
     window.TravelApp.weather.updateOverview = updateOverviewWeather;
     window.TravelApp.weather.getClothingSuggestion = getClothingSuggestion;
+    window.TravelApp.weather.updateHeroSummary = updateHeroWeatherSummary;
 
     // ========== 全局转发函数（保持兼容） ==========
     window.renderTempBar = renderTempBar;
@@ -386,5 +436,6 @@
     window.updateOverviewWeather = updateOverviewWeather;
     window.getClothingSuggestion = getClothingSuggestion;
     window.applyWeatherDynamic = applyWeatherDynamic;
+    window.updateHeroWeatherSummary = updateHeroWeatherSummary;
 
 })();
