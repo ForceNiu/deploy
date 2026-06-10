@@ -120,7 +120,8 @@
         var itemsHtml = dayItems.map(function(item) {
             var checked = savedState[item.name] ? ' checked' : '';
             var icon = savedState[item.name] ? 'fa-check-square' : 'fa-square';
-            return '<span class="check-item' + checked + '" data-name="' + item.name + '" onclick="toggleCheckItem(this)"><i class="far ' + icon + '"></i> ' + item.name + '</span>';
+            var safeName = escapeHtml(item.name);
+            return '<span class="check-item' + checked + '" data-name="' + safeName + '" onclick="toggleCheckItem(this)"><i class="far ' + icon + '"></i> ' + safeName + '</span>';
         }).join('');
 
         return '<div class="day-checklist"><div class="checklist-label"><i class="fas fa-check-square"></i> 今日提醒</div><div class="checklist-items">' + itemsHtml + '</div></div>';
@@ -149,8 +150,8 @@
             var navHtml = food.mapUrl ? '<a href="' + food.mapUrl + '" target="_blank" rel="noopener" class="mini-food-nav"><i class="fas fa-location-arrow"></i> 导航</a>' : '';
             var priceHtml = food.priceRange ? '<span class="mini-food-price">' + food.priceRange + '</span>' : '';
             return '<div class="day-food-mini-card">' +
-                '<div class="mini-food-name">' + food.name + priceHtml + '</div>' +
-                '<div class="mini-food-desc">' + descShort + '</div>' +
+                '<div class="mini-food-name">' + escapeHtml(food.name) + priceHtml + '</div>' +
+                '<div class="mini-food-desc">' + escapeHtml(descShort) + '</div>' +
                 '<div class="mini-food-bottom">' + tagsHtml + navHtml + '</div>' +
                 '</div>';
         }).join('');
@@ -249,7 +250,7 @@
 
                 // 注意事项
                 if (block.note) {
-                    detailHtml += '<div class="attention-note"><i class="fas fa-exclamation-triangle" style="margin-right:0.3rem;"></i>' + block.note + '</div>';
+                    detailHtml += '<div class="attention-note"><i class="fas fa-exclamation-triangle" style="margin-right:0.3rem;"></i>' + escapeHtml(block.note) + '</div>';
                 }
 
                 // Tips分组
@@ -351,7 +352,7 @@
             var mapHtml = food.mapUrl ? '<a href="' + food.mapUrl + '" target="_blank" rel="noopener" class="food-nav-btn"><i class="fas fa-location-arrow"></i> 导航去店铺</a>' : '';
             var ratingHtml = renderStars(food.rating);
             var priceHtml = food.priceRange ? '<span class="food-price">' + food.priceRange + '</span>' : '';
-            html += '<div class="food-card touchable fade-in-up" id="food-' + idx + '"><div class="food-info"><div class="food-name-row"><span class="food-name">' + food.name + '</span>' + ratingHtml + priceHtml + '</div><div class="food-location"><i class="fas fa-map-marker-alt"></i>' + food.location + '</div><div class="food-desc">' + food.desc + '</div><div class="food-tags">' + tagsHtml + '</div>' + mapHtml + '</div></div>';
+            html += '<div class="food-card touchable fade-in-up" id="food-' + idx + '"><div class="food-info"><div class="food-name-row"><span class="food-name">' + escapeHtml(food.name) + '</span>' + ratingHtml + priceHtml + '</div><div class="food-location"><i class="fas fa-map-marker-alt"></i>' + escapeHtml(food.location) + '</div><div class="food-desc">' + escapeHtml(food.desc) + '</div><div class="food-tags">' + tagsHtml + '</div>' + mapHtml + '</div></div>';
         });
         container.innerHTML = html || '<div class="empty-state-text">暂无该类型美食数据</div>';
         observeCards();
@@ -426,7 +427,8 @@
                 var checked = savedState[item.name];
                 var icon = checked ? 'fa-check-square' : (item.essential ? 'fa-star' : 'fa-check-circle');
                 var checkedCls = checked ? ' checked' : '';
-                html += '<li class="' + cls + checkedCls + '" data-name="' + item.name + '" onclick="togglePackItem(this)"><i class="fas ' + icon + '"></i> ' + item.name + '</li>';
+                var safeName = escapeHtml(item.name);
+                html += '<li class="' + cls + checkedCls + '" data-name="' + safeName + '" onclick="togglePackItem(this)"><i class="fas ' + icon + '"></i> ' + safeName + '</li>';
             });
             html += '</ul></div>';
         }

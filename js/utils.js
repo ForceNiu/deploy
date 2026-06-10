@@ -6,6 +6,17 @@
 (function() {
     'use strict';
 
+    // ========== XSS 转义 ==========
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     // ========== 高德地图路线生成 ==========
     function buildAmapRouteUrl(day) {
         var spots = [];
@@ -117,7 +128,7 @@
         html += '<div class="real-review-title"><i class="fas fa-comment-dots"></i> 真实评价</div>';
         html += '<div class="real-review-list">';
         reviews.forEach(function(r) {
-            html += '<div class="real-review-item">"' + r + '"</div>';
+            html += '<div class="real-review-item">"' + escapeHtml(r) + '"</div>';
         });
         html += '</div></div>';
         return html;
@@ -140,11 +151,11 @@
         var html = '<div class="accommodation-block">';
         html += '<div class="accommodation-main">';
         html += '<span class="accommodation-icon">🏨</span>';
-        html += '<span class="accommodation-name">' + info.name + '</span>';
+        html += '<span class="accommodation-name">' + escapeHtml(info.name) + '</span>';
         html += '<a href="' + mapUrl + '" target="_blank" rel="noopener" class="accommodation-nav" title="在地图中查看"><i class="fas fa-map-marker-alt"></i> 导航</a>';
         html += '</div>';
         if (info.detail) {
-            html += '<div class="accommodation-detail">' + info.detail + '</div>';
+            html += '<div class="accommodation-detail">' + escapeHtml(info.detail) + '</div>';
         }
         html += '</div>';
         return html;
@@ -236,6 +247,7 @@
     // ========== 暴露到命名空间 ==========
     window.TravelApp = window.TravelApp || {};
     window.TravelApp.utils = {
+        escapeHtml: escapeHtml,
         buildAmapRouteUrl: buildAmapRouteUrl,
         wmoToText: wmoToText,
         wmoToEmoji: wmoToEmoji,
@@ -256,6 +268,7 @@
     };
 
     // ========== 全局转发函数（保持兼容） ==========
+    window.escapeHtml = escapeHtml;
     window.buildAmapRouteUrl = buildAmapRouteUrl;
     window.wmoToText = wmoToText;
     window.wmoToEmoji = wmoToEmoji;
