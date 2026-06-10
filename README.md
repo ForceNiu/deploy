@@ -84,15 +84,23 @@
 ## 技术架构
 
 ```
-index.html          主页面（HTML 结构）
-style.css           全部样式（CSS 变量主题系统 + 响应式）
-main.js             全部交互逻辑（天气获取、数据渲染、状态管理）
-data/
-  day12.js ~ day20.js   每日行程数据（9个文件）
-  days.js               组装 dailyData 数组
-  food.js               美食数据 + 景点导航映射 + 景点美食关联
-  gifts.js              伴手礼数据
-  checklist.js          行装清单数据
+src/                        源代码目录（Cloudflare Pages 构建目录）
+  index.html              主页面（HTML 结构）
+  style.css               全部样式（CSS 变量主题系统 + 响应式）
+  main.js                 入口逻辑
+  js/                     JS 模块
+    utils.js              工具函数
+    theme.js              主题切换
+    weather.js            天气获取
+    cards.js              卡片渲染
+    nav.js                导航逻辑
+    loader.js             数据加载
+  data/                   数据文件
+    day12.js ~ day20.js   每日行程数据（9个文件）
+    days.js               组装 dailyData 数组
+    food.js               美食数据 + 景点导航映射 + 景点美食关联
+    gifts.js              伴手礼数据
+    checklist.js          行装清单数据
 ```
 
 **技术栈**:
@@ -186,28 +194,37 @@ data/
 
 ```
 deploy/
-├── index.html              主页面
-├── style.css               样式（CSS 变量 + 响应式 + 深色模式）
-├── main.js                 交互逻辑（~1660行）
-├── data/
-│   ├── day12.js            6/12 启程入山
-│   ├── day13.js            6/13 岩骨花香
-│   ├── day14.js            6/14 竹筏·品茶·慢时光
-│   ├── day15.js            6/15 虎啸岩·一线天·天游峰
-│   ├── day16.js            6/16 转场庐山·花径
-│   ├── day17.js            6/17 三叠泉·锦绣谷
-│   ├── day18.js            6/18 含鄱口日出·五老峰
-│   ├── day19.js            6/19 九江古城漫游
-│   ├── day20.js            6/20 返程
-│   ├── days.js             组装 dailyData 数组
-│   ├── food.js             美食数据（28道）+ 景点映射
-│   ├── gifts.js            伴手礼数据（9款）
-│   └── checklist.js        行装清单（27项）
-├── README.md               本文件
-├── CHANGELOG.md            变更日志
-├── PROGRESS.md             项目进度
-├── wrangler.toml           Cloudflare Pages 配置
-└── _headers                自定义 HTTP 头
+├── src/                      源代码（Cloudflare Pages 构建目录）
+│   ├── index.html            主页面
+│   ├── style.css             样式（CSS 变量 + 响应式 + 深色模式）
+│   ├── main.js               入口逻辑
+│   ├── js/                   JS 模块
+│   │   ├── utils.js          工具函数
+│   │   ├── theme.js          主题切换
+│   │   ├── weather.js        天气获取
+│   │   ├── cards.js          卡片渲染
+│   │   ├── nav.js            导航逻辑
+│   │   └── loader.js         数据加载
+│   └── data/                 数据文件
+│       ├── day12.js          6/12 启程入山
+│       ├── day13.js          6/13 岩骨花香
+│       ├── day14.js          6/14 竹筏·品茶·慢时光
+│       ├── day15.js          6/15 虎啸岩·一线天·天游峰
+│       ├── day16.js          6/16 转场庐山·花径
+│       ├── day17.js          6/17 三叠泉·锦绣谷
+│       ├── day18.js          6/18 含鄱口日出·五老峰
+│       ├── day19.js          6/19 九江古城漫游
+│       ├── day20.js          6/20 返程
+│       ├── days.js           组装 dailyData 数组
+│       ├── food.js           美食数据（28道）+ 景点映射
+│       ├── gifts.js          伴手礼数据（9款）
+│       └── checklist.js      行装清单（27项）
+├── scripts/                  工具脚本
+│   └── check-deploy.sh       部署检查脚本
+├── docs/                     本地文档（.gitignore）
+├── README.md                 本文件
+├── CHANGELOG.md              变更日志
+└── PROGRESS.md               项目进度
 ```
 
 ## 设计风格
@@ -237,7 +254,8 @@ deploy/
 
 ```bash
 # 本地预览
-# 直接在浏览器中打开 index.html 即可
+cd src && python3 -m http.server 8080
+# 浏览器访问 http://localhost:8080
 
 # Cloudflare Pages 配置
 # 构建命令：留空（纯静态）
