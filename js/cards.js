@@ -136,12 +136,12 @@
     }
 
     function buildDayFoodSection(city) {
-        if (!foodData || city === 'move') return '';
+        if (!window.foodData || city === 'move') return '';
         var regionMap = { 'wuyi': 'wuyi', 'lushan': 'lushan', 'jiujiang': 'jiujiang' };
         var region = regionMap[city];
         if (!region) return '';
 
-        var cityFoods = foodData.filter(function(f) { return f.region === region; }).slice(0, 4);
+        var cityFoods = window.foodData.filter(function(f) { return f.region === region; }).slice(0, 4);
         if (cityFoods.length === 0) return '';
 
         var cardsHtml = cityFoods.map(function(food) {
@@ -169,8 +169,8 @@
 
     function buildNextDayPreview(dayIdx) {
         var nextIdx = dayIdx + 1;
-        if (nextIdx >= dailyData.length) return '';
-        var nextDay = dailyData[nextIdx];
+        if (nextIdx >= window.dailyData.length) return '';
+        var nextDay = window.dailyData[nextIdx];
         var nextInfo = getCityForDay(nextIdx);
         var nextTime = getFirstActivityTime(nextDay.blocks);
 
@@ -205,7 +205,7 @@
             todayIdx = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
         }
 
-        dailyData.forEach(function(day, idx) {
+        window.dailyData.forEach(function(day, idx) {
             var info = getCityForDay(idx);
             var dateKey = getDayDateKey(idx);
             var isToday = idx === todayIdx;
@@ -345,7 +345,7 @@
     function buildFoodGrid() {
         var container = document.getElementById('foodGrid');
         var html = '';
-        foodData.forEach(function(food, idx) {
+        window.foodData.forEach(function(food, idx) {
             if (TravelApp.food.filter !== 'all' && food.region !== TravelApp.food.filter) return;
             if (TravelApp.food.typeFilter !== 'all' && food.type !== TravelApp.food.typeFilter) return;
             var tagsHtml = food.tags.map(function(t) { return '<span class="food-tag">' + t + '</span>'; }).join('');
@@ -362,7 +362,7 @@
     function buildGiftGrid() {
         var container = document.getElementById('giftGrid');
         var html = '';
-        giftData.forEach(function(gift) {
+        window.giftData.forEach(function(gift) {
             if (currentGiftFilter !== 'all' && gift.region !== currentGiftFilter) return;
             var regionClass = 'gift-' + gift.region;
             var icon = gift.region === 'wuyi' ? '🍃' : gift.region === 'lushan' ? '🏔️' : '🏙️';
@@ -446,8 +446,8 @@
 
     // ========== Tab计数更新 ==========
     function updateTabCounts() {
-        var foodCounts = { all: foodData.length, wuyi: 0, lushan: 0, jiujiang: 0 };
-        foodData.forEach(function(f) { if (foodCounts[f.region] !== undefined) foodCounts[f.region]++; });
+        var foodCounts = { all: window.foodData.length, wuyi: 0, lushan: 0, jiujiang: 0 };
+        window.foodData.forEach(function(f) { if (foodCounts[f.region] !== undefined) foodCounts[f.region]++; });
         document.querySelectorAll('#foodTabs .food-tab').forEach(function(tab) {
             var city = tab.dataset.city;
             var count = foodCounts[city] || 0;
@@ -455,8 +455,8 @@
             if (!countEl) { countEl = document.createElement('span'); countEl.className = 'tab-count'; tab.appendChild(countEl); }
             countEl.textContent = count;
         });
-        var giftCounts = { all: giftData.length, wuyi: 0, lushan: 0, jiujiang: 0 };
-        giftData.forEach(function(g) { if (giftCounts[g.region] !== undefined) giftCounts[g.region]++; });
+        var giftCounts = { all: window.giftData.length, wuyi: 0, lushan: 0, jiujiang: 0 };
+        window.giftData.forEach(function(g) { if (giftCounts[g.region] !== undefined) giftCounts[g.region]++; });
         document.querySelectorAll('#giftTabs .gift-tab').forEach(function(tab) {
             var city = tab.dataset.city;
             var count = giftCounts[city] || 0;

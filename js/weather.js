@@ -208,7 +208,7 @@
 
     // ========== 概览层天气动态更新 ==========
     function updateOverviewWeather() {
-        dailyData.forEach(function(day, idx) {
+        window.dailyData.forEach(function(day, idx) {
             var info = getCityForDay(idx);
             if (info.city === 'move') return;
             var dateKey = getDayDateKey(idx);
@@ -271,7 +271,7 @@
         var sunriseBlocks = [];
         var rainBlocks = [];
 
-        dailyData.forEach(function(day, dayIdx) {
+        window.dailyData.forEach(function(day, dayIdx) {
             var dateKey = day.dateKey || getDayDateKey(dayIdx);
             var info = getCityForDay(dayIdx);
             if (info.city === 'move') return;

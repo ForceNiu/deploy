@@ -196,9 +196,9 @@
         var links = '';
         foodNames.forEach(function(f) {
             var foodIdx = -1;
-            if (typeof foodData !== 'undefined') {
-                for (var i = 0; i < foodData.length; i++) {
-                    if (foodData[i].name === f) { foodIdx = i; break; }
+            if (typeof window.foodData !== 'undefined') {
+                for (var i = 0; i < window.foodData.length; i++) {
+                    if (window.foodData[i].name === f) { foodIdx = i; break; }
                 }
             }
             if (foodIdx !== -1) links += '<a href="#food-' + foodIdx + '" class="spot-link spot-link-food"><i class="fas fa-utensils"></i> ' + f + '</a>';

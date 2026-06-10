@@ -104,30 +104,42 @@ var currentGiftFilter = 'all';
 
 // ========== 初始化（DOMContentLoaded） ==========
 window.addEventListener('DOMContentLoaded', function() {
-    buildNav();
-    buildDailyCards();
-    buildFoodGrid();
-    buildGiftGrid();
-    buildTicketTips();
-    buildPriceSummary();
-    renderPackingChecklist();
-    updateTabCounts();
-    highlightToday();
-    setupSectionAccessibility();
-    document.getElementById('weatherNote').innerHTML = '<span class="weather-loading-text"><i class="fas fa-spinner fa-spin"></i> 正在获取天气数据，预计 3-5 秒...</span>';
-    renderWeather().then(function() { checkWeatherAlerts(); applyWeatherDynamic(); updateOverviewWeather(); });
-    setupScrollProgress();
-    setupBottomNav();
-    setupSwipeGesture();
-    applyTheme(getTheme());
-    updateCountdown();
-    setInterval(updateCountdown, 60000);
-    scrollToToday();
-    var ticking = false;
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            window.requestAnimationFrame(function() { updateNavHighlight(); ticking = false; });
-            ticking = true;
+    // 先加载数据
+    loadData().then(function(result) {
+        // 显示加载失败提示
+        if (!result.success) {
+            TravelApp.loader.showLoadError(result.failed);
         }
+
+        // 初始化各模块
+        buildNav();
+        buildDailyCards();
+        buildFoodGrid();
+        buildGiftGrid();
+        buildTicketTips();
+        buildPriceSummary();
+        renderPackingChecklist();
+        updateTabCounts();
+        highlightToday();
+        setupSectionAccessibility();
+        document.getElementById('weatherNote').innerHTML = '<span class="weather-loading-text"><i class="fas fa-spinner fa-spin"></i> 正在获取天气数据，预计 3-5 秒...</span>';
+        renderWeather().then(function() { checkWeatherAlerts(); applyWeatherDynamic(); updateOverviewWeather(); });
+        setupScrollProgress();
+        setupBottomNav();
+        setupSwipeGesture();
+        applyTheme(getTheme());
+        updateCountdown();
+        setInterval(updateCountdown, 60000);
+        scrollToToday();
+        var ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(function() { updateNavHighlight(); ticking = false; });
+                ticking = true;
+            }
+        });
+    }).catch(function(err) {
+        console.error('数据加载失败:', err);
+        document.querySelector('.container').innerHTML = '<div style="text-align:center;padding:40px;color:#dc3545;"><h2>⚠️ 页面加载失败</h2><p>请刷新页面重试</p></div>';
     });
 });

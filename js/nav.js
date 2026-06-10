@@ -189,7 +189,7 @@
     function buildNav() {
         var nav = document.getElementById('navLinks');
         var links = '';
-        dailyData.forEach(function(day, idx) {
+        window.window.dailyData.forEach(function(day, idx) {
             var info = getCityForDay(idx);
             links += '<a href="#day-' + idx + '" class="nav-link" data-idx="' + idx + '"><span class="city-dot city-' + info.city + '"></span><span>' + day.date.slice(0, 5) + '</span></a>';
         });
@@ -222,13 +222,13 @@
     var currentVisibleDay = 0;
 
     function updateBottomNav(dayIdx) {
-        if (dayIdx < 0 || dayIdx >= dailyData.length) return;
+        if (dayIdx < 0 || dayIdx >= window.dailyData.length) return;
         currentVisibleDay = dayIdx;
-        var day = dailyData[dayIdx];
+        var day = window.dailyData[dayIdx];
         document.getElementById('navDayInfo').textContent = 'Day ' + (dayIdx + 1) + ' · ' + day.date;
         document.getElementById('navCity').textContent = '';
         document.getElementById('navPrev').disabled = dayIdx === 0;
-        document.getElementById('navNext').disabled = dayIdx === dailyData.length - 1;
+        document.getElementById('navNext').disabled = dayIdx === window.dailyData.length - 1;
     }
 
     function setupBottomNav() {
@@ -244,7 +244,7 @@
         });
 
         nextBtn.addEventListener('click', function() {
-            if (currentVisibleDay < dailyData.length - 1) {
+            if (currentVisibleDay < window.dailyData.length - 1) {
                 document.getElementById('day-' + (currentVisibleDay + 1)).scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         });
@@ -302,7 +302,7 @@
             var dx = e.changedTouches[0].clientX - startX;
             var elapsed = Date.now() - startTime;
             if (Math.abs(dx) > 50 && elapsed < 500) {
-                if (dx < 0 && currentVisibleDay < dailyData.length - 1) {
+                if (dx < 0 && currentVisibleDay < window.dailyData.length - 1) {
                     document.getElementById('day-' + (currentVisibleDay + 1)).scrollIntoView({ behavior: 'smooth', block: 'start' });
                 } else if (dx > 0 && currentVisibleDay > 0) {
                     document.getElementById('day-' + (currentVisibleDay - 1)).scrollIntoView({ behavior: 'smooth', block: 'start' });
