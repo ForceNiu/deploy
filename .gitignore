@@ -2,3 +2,9 @@
 
 # Local Netlify folder
 .netlify
+
+# Playwright MCP cache (contains browser snapshots with personal info)
+.playwright-mcp/
+
+# Cloudflare Wrangler local state
+.wrangler/
