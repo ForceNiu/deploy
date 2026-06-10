@@ -191,7 +191,7 @@
         var links = '';
         window.window.dailyData.forEach(function(day, idx) {
             var info = getCityForDay(idx);
-            links += '<a href="#day-' + idx + '" class="nav-link" data-idx="' + idx + '"><span class="city-dot city-' + info.city + '"></span><span>' + day.date.slice(0, 5) + '</span></a>';
+            links += '<a href="#day-' + idx + '" class="nav-link" data-idx="' + idx + '" aria-label="第' + (idx + 1) + '天 ' + info.cityName + ' ' + day.date.slice(0, 5) + '"><span class="city-dot city-' + info.city + '"></span><span>' + day.date.slice(0, 5) + '</span></a>';
         });
         nav.innerHTML = links;
     }

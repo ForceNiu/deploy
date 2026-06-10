@@ -11,6 +11,9 @@
 </head>
 <body>
 
+<!-- 跳过导航链接（无障碍） -->
+<a href="#main-content" class="skip-nav">跳过导航，直接查看内容</a>
+
 <!-- 滚动进度条 -->
 <div class="scroll-progress" id="scrollProgress"></div>
 
@@ -21,7 +24,7 @@
 <!-- 主题切换 -->
 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换深色模式" aria-label="切换深色模式" role="button">🌙</button>
 
-<div class="container">
+<div class="container" id="main-content" role="main">
     <!-- Hero -->
     <div class="hero">
         <h1>⛰️ 武夷 · 庐山 · 九江 🌊</h1>
@@ -107,14 +110,14 @@
 </div>
 
 <!-- 底部操作栏 -->
-<nav class="bottom-date-nav" id="bottomDateNav">
-    <button class="nav-arrow" id="navPrev" title="上一天"><i class="fas fa-chevron-left"></i></button>
+<nav class="bottom-date-nav" id="bottomDateNav" role="navigation" aria-label="日期导航">
+    <button class="nav-arrow" id="navPrev" title="上一天" aria-label="切换到上一天"><i class="fas fa-chevron-left"></i></button>
     <div class="nav-center">
         <span class="nav-day-info" id="navDayInfo">Day 1/9 · 6/12 武夷山</span>
         <span class="nav-city" id="navCity">启程入山</span>
     </div>
-    <button class="nav-top-btn" id="navTopBtn" title="回到顶部"><i class="fas fa-arrow-up"></i></button>
-    <button class="nav-arrow" id="navNext" title="下一天"><i class="fas fa-chevron-right"></i></button>
+    <button class="nav-top-btn" id="navTopBtn" title="回到顶部" aria-label="回到页面顶部"><i class="fas fa-arrow-up"></i></button>
+    <button class="nav-arrow" id="navNext" title="下一天" aria-label="切换到下一天"><i class="fas fa-chevron-right"></i></button>
 </nav>
 
 <!-- 快捷导航 -->

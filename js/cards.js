@@ -234,7 +234,7 @@
                 var detailHtml = '';
                 var plainLen = block.desc.replace(/<[^>]+>/g, '').length;
                 if (plainLen > 80) {
-                    detailHtml += '<div class="text-clamp" id="clamp-' + idx + '-' + blockIdx + '">' + descHtml + '</div><span class="expand-text-btn" onclick="toggleClamp(' + idx + ',' + blockIdx + ')">展开全文</span>';
+                    detailHtml += '<div class="text-clamp" id="clamp-' + idx + '-' + blockIdx + '">' + descHtml + '</div><span class="expand-text-btn" role="button" tabindex="0" aria-expanded="false" onclick="toggleClamp(' + idx + ',' + blockIdx + ')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleClamp(' + idx + ',' + blockIdx + ')}">展开全文</span>';
                 } else {
                     detailHtml += descHtml;
                 }

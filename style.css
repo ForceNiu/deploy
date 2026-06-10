@@ -1,3 +1,25 @@
+/* ========== 无障碍：跳过导航链接 ========== */
+.skip-nav {
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--green-primary, #2d5a27);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 0 0 8px 8px;
+    z-index: 10000;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: top 0.2s ease;
+}
+.skip-nav:focus {
+    top: 0;
+    outline: 3px solid #4d94ff;
+    outline-offset: 2px;
+}
+
 /* ========== 主题变量 ========== */
 :root {
     /* 山水田园风 */
