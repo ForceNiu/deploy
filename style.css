@@ -2613,3 +2613,30 @@ footer {
         transition: opacity 0.1s, transform 0.1s;
     }
 }
+
+/* ========== 门票数据加载失败 ========== */
+.price-error {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-secondary);
+}
+.price-error p {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+.retry-btn {
+    padding: 0.6rem 1.2rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.retry-btn:hover {
+    opacity: 0.9;
+}
+.retry-btn:active {
+    transform: scale(0.96);
+}
