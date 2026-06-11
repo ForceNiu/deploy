@@ -6,7 +6,7 @@ window._day14 = {
     totalDuration: "4h",
     weekend: true,
     intensity: 1,
-    accommodation: "武夷山明曦堂茶宿（三姑度假区五丰花园17幢，续住）",
+    accommodation: "",
     blocks: [
         {
             time: "🌅 上午 7:20",

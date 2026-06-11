@@ -6,7 +6,7 @@ window._day13 = {
     totalDuration: "7h",
     weekend: true,
     intensity: 3,
-    accommodation: "武夷山明曦堂茶宿（三姑度假区五丰花园17幢，携程4.9分。老板娘热情周到，会推荐小众景点+帮忙规划路线，早起爬白云禅寺时会提前准备茶叶蛋和牛奶。距景区南门打车7-9元，去武夷山北站约30分钟）",
+    accommodation: "",
     blocks: [
         {
             time: "🌅 早上 6:45",

@@ -659,10 +659,8 @@ body::after {
     to { transform: rotate(360deg); }
 }
 .section-content {
-    overflow: visible;
-    transition: opacity 0.3s ease, max-height 0.35s ease;
+    transition: opacity 0.3s ease;
     opacity: 1;
-    max-height: 5000px;
 }
 .section-content.collapsed {
     opacity: 0;
@@ -1121,10 +1119,8 @@ html.transitioning footer {
 .collapse-all-btn:hover { background: var(--shadow-primary-xs); color: var(--green-primary); }
 .day-body {
     padding: 1rem 1.2rem;
-    overflow: visible;
-    transition: padding 0.4s ease, opacity 0.3s ease, max-height 0.35s ease;
+    transition: padding 0.4s ease, opacity 0.3s ease;
     opacity: 1;
-    max-height: 5000px;
 }
 .day-card.collapsed .day-body {
     padding-top: 0;

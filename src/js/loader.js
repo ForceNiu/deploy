@@ -41,7 +41,7 @@
                 resolve({ key: file.key, data: file.fallback, success: false, error: 'timeout' });
             }, 10000); // 10秒超时
 
-            fetch(file.path)
+            fetch(file.path + '?t=' + Date.now())
                 .then(function(response) {
                     clearTimeout(timeout);
                     if (!response.ok) {
